@@ -2,7 +2,7 @@
 <resources>
 
     <string name="app_name">QualOperadora</string>
-    <string name="hello_world">Qual operadora ? :</string>
+    <string name="hello_world">   Qual Operadora </string>
     <string name="action_settings">Settings</string>
 
 </resources>
