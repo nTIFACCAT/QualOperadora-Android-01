@@ -2,7 +2,8 @@
     android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:weightSum="1">
 
     <LinearLayout
         android:orientation="horizontal"
@@ -87,14 +88,28 @@
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="fill_parent"
-        android:layout_height="56dp">
+        android:layout_height="113dp"
+        android:layout_weight="0.36">
+
+        <ListView
+            android:layout_width="374dp"
+            android:layout_height="141dp"
+            android:id="@+id/listaDetalhes"
+            android:headerDividersEnabled="false" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="56dp"
+        android:weightSum="1">
 
         <RelativeLayout
-            android:layout_width="197dp"
+            android:layout_width="match_parent"
             android:layout_height="44dp">
 
             <ImageView
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/imageView"
                 android:layout_alignParentTop="true"
@@ -107,71 +122,11 @@
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="fill_parent"
-        android:layout_height="38dp"
-        android:weightSum="1">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="27dp"
-            android:text="UF:   "
-            android:id="@+id/textUF"
-            android:layout_above="@+id/txtPortabilidade"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_marginBottom="36dp"
-            android:layout_weight="0.25" />
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="..."
-            android:id="@+id/txtUF"
-            android:layout_alignTop="@+id/textUF"
-            android:layout_alignLeft="@+id/txtPortabilidade"
-            android:layout_alignStart="@+id/txtPortabilidade"
-            android:layout_weight="0.24" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="fill_parent"
-        android:layout_height="37dp">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Portabilidade: "
-            android:id="@+id/textView2" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="...: "
-            android:id="@+id/txtPortabilidade"
-            android:layout_alignTop="@+id/textPortabilidade"
-            android:layout_toRightOf="@+id/textPortabilidade"
-            android:layout_marginLeft="27dp" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="fill_parent"
         android:layout_height="65dp">
 
         <RelativeLayout
             android:layout_width="fill_parent"
             android:layout_height="fill_parent">
-
-
-            <Button
-                style="?android:attr/buttonStyleSmall"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Ligar"
-                android:id="@+id/btLigar"
-                android:layout_centerVertical="true"
-                android:layout_centerHorizontal="true" />
 
 
         </RelativeLayout>

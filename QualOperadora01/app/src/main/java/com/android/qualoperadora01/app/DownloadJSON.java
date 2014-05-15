@@ -1,5 +1,6 @@
 package com.android.qualoperadora01.app;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
@@ -9,99 +10,116 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.protocol.HTTP;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-
-import static org.apache.http.protocol.HTTP.*;
-import static org.apache.http.protocol.HTTP.UTF_8;
+import java.net.UnknownHostException;
 
 /**
- * Created by Ricardo on 08/05/2014.
+ /* Classe que faz a busca dos dados na web no JSON.
+ Esta extende uma AsyncTask pois esta busca não pode ser feita pela Thread principal da activity.
+ Está sendo feita dentro da mesma activity visto que cada activity corresponde a uma tela da aplicação e também porque tempos que utilizar os métodos
+
+ protected void onPreExecute e protected void onPostExecute que utilizam as preogress dialogs que avisam o usuário do andamento das atividades
+
  */
 public class DownloadJSON extends AsyncTask<String, Void, String> {
-    private static String URL = "http://private-61fc-rodrigoknascimento.apiary-mock.com/consulta/";
 
-    @Override
-    protected String doInBackground(String... strings) {
+        private Context context;
+        private String URL = "http://private-61fc-rodrigoknascimento.apiary-mock.com/consulta/";
+        ProgressDialog dialogo = new ProgressDialog(this.context);
 
-        String result;
-        HttpClient httpCliente = new DefaultHttpClient();
-        //httpCliente.getParams().setParameter(strings[0], "telefone");
 
-        try {
-            HttpGet httpGet = new HttpGet(URL+strings[0]);
-            //httpPost.setHeader("Content-Type", "text/plain; charset=utf-8");
-            Log.i("Leu URL:",URL);
-            HttpResponse response = httpCliente.execute(httpGet);
-            Log.i("Exec: ","Executou response..");
-            HttpEntity entity = response.getEntity();
-            //result = entity.getContent().toString();
+    public DownloadJSON (Context contexto){
+        this.context = contexto;
 
-            if (entity != null) {
-                InputStream instream = entity.getContent();
-                result = toString(instream);
-                instream.close();
+    }
+
+        @Override
+        protected String doInBackground(String... strings) {
+
+            String result;
+            HttpClient httpCliente = new DefaultHttpClient();
+            //httpCliente.getParams().setParameter(strings[0], "telefone");
+
+            try {
+                HttpGet httpGet = new HttpGet(URL + strings[0]);
+                //httpPost.setHeader("Content-Type", "text/plain; charset=utf-8");
+                Log.i("Leu URL:", URL);
+                HttpResponse response = httpCliente.execute(httpGet);
+                Log.i("Exec: ", "Executou response..");
+                HttpEntity entity = response.getEntity();
                 //result = entity.getContent().toString();
-                Log.i("URL:",URL);
-                Log.i("Fone informado:  ", strings[0]);
-                Log.i("Retorno conexão:  ", result);
-                return result;
+
+                if (entity != null) {
+                    InputStream instream = entity.getContent();
+                    result = toString(instream);
+                    instream.close();
+                    //result = entity.getContent().toString();
+                    Log.i("URL:", URL);
+                    Log.i("Fone informado:  ", strings[0]);
+                    Log.i("Retorno conexão:  ", result);
+                    return result;
+                }
+
+            } catch (ClientProtocolException e) {
+               // showMessage("Erro ao acessar. Verifique a conexão. Erro: "+e.getMessage());
+                e.printStackTrace();
+            } catch (RuntimeException e) {
+                //showMessage("Problemas na execução. Verifique a conexão. Erro: " + e.getMessage());
+                e.printStackTrace();
+            } catch (UnknownHostException e) {
+                //showMessage("Problemas no Host. Verifique a conexão. Erro: " + e.getMessage());
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
+                Log.e("Erro http", "Falha ao acessar Web Service");
             }
-
-
-
-        } catch (ClientProtocolException e1) {
-            e1.printStackTrace();
-        } catch (IOException e1) {
-            e1.printStackTrace();
-        } catch (Exception e) {
-            Log.e("Erro http", "Falha ao acessar Web Service");
+            return null;
         }
-        return null;
-
-}
 
 
-    @Override
-    protected void onPreExecute() {
-        super.onPreExecute();
-
-    }
-
-    @Override
-    protected void onPostExecute(String s) {
-        super.onPostExecute(s);
-    }
-
-    private String toString (InputStream is)
-            throws IOException {
-
-        Log.i("Str ", "Entrou");
-        byte[] bytes = new byte[1024];
-        ByteArrayOutputStream baos =
-                new ByteArrayOutputStream();
-        int lidos;
-        while ((lidos = is.read(bytes)) > 0) {
-            baos.write(bytes, 0, lidos);
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            dialogo.setMessage("Pesquisando. Aguarde...");
+            dialogo.show();
         }
-        return new String(baos.toByteArray());
-    }
 
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+            if (this.dialogo.isShowing()) {
+                dialogo.dismiss();
+            }
+        }
+
+        // Sobrescreve o método toString e traz o JSON em forma de string
+        private String toString(InputStream is)
+                throws IOException {
+
+            byte[] bytes = new byte[1024];
+            ByteArrayOutputStream baos =
+                    new ByteArrayOutputStream();
+            int lidos;
+            while ((lidos = is.read(bytes)) > 0) {
+                baos.write(bytes, 0, lidos);
+            }
+            return new String(baos.toByteArray());
+        }
+
+        private void showMessage(String mensagem){
+
+            AlertDialog.Builder msg = new AlertDialog.Builder(this.context);
+            msg.setIcon(R.drawable.warning);
+            msg.setTitle("Operadora");
+            msg.setMessage(mensagem);
+            msg.setNeutralButton("OK", null);
+            msg.show();
+        }
 
 }
