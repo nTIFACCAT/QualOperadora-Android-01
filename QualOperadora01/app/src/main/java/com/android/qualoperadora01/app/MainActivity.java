@@ -89,7 +89,7 @@ public class MainActivity extends ActionBarActivity {
                             //DownloadJSON download = new DownloadJSON(MainActivity.this);
                             Log.i("MSG", "Antes de chamar download...");
                             String result = new buscaDadosJSON().execute(telefone).get();
-
+                            //String result = new DownloadJSON(MainActivity.this).execute(telefone).get();
 
                             // Instancia um objeto JSON com base no resultado obtido
                             JSONObject json = new JSONObject(result);

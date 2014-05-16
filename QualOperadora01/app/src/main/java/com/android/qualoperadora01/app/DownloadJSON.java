@@ -1,5 +1,6 @@
 package com.android.qualoperadora01.app;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -28,13 +29,13 @@ import java.net.UnknownHostException;
  */
 public class DownloadJSON extends AsyncTask<String, Void, String> {
 
-        private Context context;
+        private Activity activity;
         private String URL = "http://private-61fc-rodrigoknascimento.apiary-mock.com/consulta/";
-        ProgressDialog dialogo = new ProgressDialog(this.context);
+        ProgressDialog dialogo = new ProgressDialog(this.activity);
 
 
-    public DownloadJSON (Context contexto){
-        this.context = contexto;
+    public DownloadJSON (Activity activity){
+        this.activity = activity;
 
     }
 
@@ -114,7 +115,7 @@ public class DownloadJSON extends AsyncTask<String, Void, String> {
 
         private void showMessage(String mensagem){
 
-            AlertDialog.Builder msg = new AlertDialog.Builder(this.context);
+            AlertDialog.Builder msg = new AlertDialog.Builder(this.activity);
             msg.setIcon(R.drawable.warning);
             msg.setTitle("Operadora");
             msg.setMessage(mensagem);
