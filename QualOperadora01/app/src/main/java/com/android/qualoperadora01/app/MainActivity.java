@@ -217,7 +217,7 @@ public class MainActivity extends ActionBarActivity {
 
 
 private class buscaDadosJSON extends AsyncTask<String, Void, String> {
-    private String URL = "http://private-61fc-rodrigoknascimento.apiary-mock.com/consulta/";
+    private String URL = "qualoperadora.herokuapp.com/consulta/"; //"http://private-61fc-rodrigoknascimento.apiary-mock.com/consulta/";
     ProgressDialog dialogo = new ProgressDialog(MainActivity.this);
 
 
