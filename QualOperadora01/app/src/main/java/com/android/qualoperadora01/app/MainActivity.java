@@ -5,19 +5,23 @@ import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.provider.ContactsContract;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,6 +39,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 
@@ -58,6 +64,39 @@ public class MainActivity extends ActionBarActivity {
         Button btBuscar = (Button) findViewById(R.id.btBuscar);
         final EditText txtTelefone = (EditText) findViewById(R.id.txtFone);
 
+        final List<String> nomeContatosList = new ArrayList<String>();
+        final List<String> foneContatosList = new ArrayList<String>();
+        nomeContatosList.add(""); // adiciona um campo vazio para caso o usuario nao queira informar um contato
+        foneContatosList.add(""); // adiciona um campo vazio para caso o usuario nao queira informar um contato
+        buscaContatos("nome", nomeContatosList);
+        buscaContatos("fone", foneContatosList);
+
+        final Spinner spinnerContatos = (Spinner)findViewById(R.id.spinnerContatos);
+
+        Uri uri = Uri.parse("content://com.android.contacts/contacts/");
+        Intent preencheSpinner = new Intent(Intent.ACTION_PICK, uri);
+        ArrayAdapter adaptador = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, nomeContatosList);
+        spinnerContatos.setAdapter(adaptador);
+
+        spinnerContatos.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView parent, View v, int posicao, long id) {
+                txtTelefone.setText(foneContatosList.get(posicao));
+
+                /*
+
+                Dá pau no app quando executa o botão com o número que vem do contato porque ele está com mascara.
+                Tratar para aceitar assim (retirar máscara?)
+
+                if (!spinnerContatos.getSelectedItem().toString().equals("")) {
+                    btBuscar.performClick();
+                }*/
+            }
+            @Override
+            public void onNothingSelected(AdapterView parent) {
+
+            }
+        });
 
         btBuscar.setOnClickListener(new View.OnClickListener() {
 
@@ -167,8 +206,6 @@ public class MainActivity extends ActionBarActivity {
     }
 /*
 
-
-
         TODO: Criar botão no layout main.xml
 
 /*
@@ -202,10 +239,23 @@ public class MainActivity extends ActionBarActivity {
 
 
     }
-
-
-
 */
+
+    protected void buscaContatos(String tipo, List<String> lista) {
+        Cursor cursor = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null, null);
+        while(cursor.moveToNext()) {
+            if (tipo == "nome" ) {
+                lista.add(cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)));
+            }
+            else {
+                lista.add(cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)));
+            }
+        }
+
+        String[] contatos;
+        contatos = new String[lista.size()];
+        lista.toArray(contatos);
+    }
 
 /* Classe privada que faz a busca dos dados na web no JSON.
    Esta extende uma AsyncTask pois esta busca não pode ser feita pela Thread principal da activity.
@@ -217,7 +267,7 @@ public class MainActivity extends ActionBarActivity {
 
 
 private class buscaDadosJSON extends AsyncTask<String, Void, String> {
-    private String URL = "qualoperadora.herokuapp.com/consulta/"; //"http://private-61fc-rodrigoknascimento.apiary-mock.com/consulta/";
+    private String URL = "http://qualoperadora.herokuapp.com/consulta/"; //"http://private-61fc-rodrigoknascimento.apiary-mock.com/consulta/";
     ProgressDialog dialogo = new ProgressDialog(MainActivity.this);
 
 
