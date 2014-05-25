@@ -23,9 +23,9 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".TelefoneJSON">
+        <activity android:name="com.android.qualoperadora01.app.DownloadJSON">
             <intent-filter>
-                <action android:name="TelefoneJSON"/>
+                <action android:name="downloadJSON"/>
                 <category android:name="android.intent.category.DEFAULT"/>
 
             </intent-filter>
