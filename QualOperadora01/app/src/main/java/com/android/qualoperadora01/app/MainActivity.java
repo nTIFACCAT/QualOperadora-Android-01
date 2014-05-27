@@ -60,6 +60,9 @@ public class MainActivity extends Activity {
         // downloadJSON foi declarado no AndroidManifest no intent filter
         Intent i = new Intent("downloadJSON");
         startActivity(i);
+        // Finish encerra a main, pois senão ao retornar da activity chamanda ficará uma tela branca.
+        finish();
+
     }
 }
 
