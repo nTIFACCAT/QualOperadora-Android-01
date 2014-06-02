@@ -13,6 +13,7 @@ import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewDebug;
+import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -45,46 +46,7 @@ public abstract class BaseOperadora extends Activity {
         Button btBuscar = (Button) findViewById(R.id.btBuscar);
         Button btAgenda = (Button) findViewById(R.id.btAgenda);
         Button btLigar = (Button) findViewById(R.id.btLigar);
-
         final EditText txtTelefone = (EditText) findViewById(R.id.txtFone);
-
-        /**
-         * Created by Dimitri on 24/05/2014.
-         */
-        final List<String> nomeContatosList = new ArrayList<String>();
-        final List<String> foneContatosList = new ArrayList<String>();
-        nomeContatosList.add(""); // adiciona um campo vazio para caso o usuario nao queira informar um contato
-        foneContatosList.add(""); // adiciona um campo vazio para caso o usuario nao queira informar um contato
-        buscaContatos("nome", nomeContatosList);
-        buscaContatos("fone", foneContatosList);
-
-        final Spinner spinnerContatos = (Spinner) findViewById(R.id.spinnerContatos);
-
-        Uri uri = Uri.parse("content://com.android.contacts/contacts/");
-        //Intent preencheSpinner = new Intent(Intent.ACTION_PICK, uri);
-        ArrayAdapter adaptador = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, nomeContatosList);
-        spinnerContatos.setAdapter(adaptador);
-
-        spinnerContatos.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView parent, View v, int posicao, long id) {
-                txtTelefone.setText(foneContatosList.get(posicao));
-
-                /*
-                Dá pau no app quando executa o botão com o número que vem do contato porque ele está com mascara.
-                Tratar para aceitar assim (retirar máscara?)
-
-                if (!spinnerContatos.getSelectedItem().toString().equals("")) {
-                    btBuscar.performClick();
-                }*/
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView parent) {
-
-            }
-        });
-
 
 /**
  * Created by Ricardo on 24/05/2014.
@@ -156,6 +118,7 @@ public abstract class BaseOperadora extends Activity {
         });
     }
 
+
     /**
      * Created by Ricardo on 26/05/2014.
      */
@@ -165,15 +128,16 @@ public abstract class BaseOperadora extends Activity {
         // Recebe uma intent de retorno o qual podemos recuperar os dados, ou seja.
         // Ao retornar da intent chamada o Android traz uma nova intent como retorno e então podemos manipular os dados de retorno
 
-        EditText tFone = (EditText) findViewById(R.id.txtFone);
+        //Spinner que recebe os números do contato
+        final Spinner spinnerNumeros = (Spinner) findViewById(R.id.spinnerNumeros);
+        // Text que recebe o número selecionado, representa a txtFone do layout da activity_main.xml
+        final EditText tFone = (EditText) findViewById(R.id.txtFone);
         TextView tNome = (TextView) findViewById(R.id.textView2);
-       //Uri que identifica o contato, resultado do click no contato da agenda do android
+       //Uri que identifica o contato, resultado do click no contato da agenda do android. Trazido pela intent de retorno
         Uri uri = intent.getData();
-
        /*Busca o contato no banco de dados do telefone utilizando a Uri do contato selecionado
         O cursor c contém os dados do contato selecionado
         */
-
         Cursor c = getContentResolver().query(uri, null, null, null, null);
         c.moveToNext();
 
@@ -183,33 +147,81 @@ public abstract class BaseOperadora extends Activity {
         * */
 
         long idContato = ContentUris.parseId(uri);
+        String nomeContato = c.getString(c.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
+
         /*
          *  Novo cursor para buscar os demais dados do contato. O primeiro parâmentro, obrigatório, é a URI onde constao os dados dos contatos, o terceiro é o parâmetro de filtro,
          *  Funciona como a cláusula Where de uma consulta SQL
          */
 
+        //Array com os número do contato
+        final ArrayList<String> numeros = new ArrayList<String>();
+        // Adapter para a spinner dos números
+        ArrayAdapter<String> adapterNumeros = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item,numeros);
+
         Cursor telefones = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,ContactsContract.CommonDataKinds.Phone.CONTACT_ID+"="+idContato, null, null);
         //Posiciona o cursor
         telefones.moveToFirst();
         //Recupera o número do contato
-        //int nameColumn = c.getColumnIndexOrThrow(ContactsContract.Contacts.DISPLAY_NAME);
-        //int foneColumn = c.getColumnIndexOrThrow(ContactsContract.Contacts._ID);
 
         if (telefones.getCount()>0){
-            tFone.setText(telefones.getString(telefones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)));
-            tNome.setText(telefones.getString(telefones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)));
+            Log.i("Telefones Count ", String.valueOf(telefones.getCount()));
+            for (int i=0;i<telefones.getCount();i++){
+                numeros.add(telefones.getString(telefones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)));
+                telefones.moveToNext();
+            }
+
         }else {
             showMessage("Não existe número cadastrado. ");
+            tFone.setText("");
         }
 
+        tNome.setText(nomeContato);
+        spinnerNumeros.setAdapter(adapterNumeros);
         c.close();
         telefones.close();
+
+        /**
+         *
+         * Created by Dimitri on 24/05/2014.
+         * Modificado - Adaptado a leitura da agenda do telefone
+         *
+         *
+         *
+*/
+        spinnerNumeros.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView parent, View v, int posicao, long id) {
+
+                tFone.setText(numeros.get(posicao));
+                /*
+                Dá pau no app quando executa o botão com o número que vem do contato porque ele está com mascara.
+                Tratar para aceitar assim (retirar máscara?)
+
+                if (!spinnerContatos.getSelectedItem().toString().equals("")) {
+                    btBuscar.performClick();
+                }*/
+
+            }
+            @Override
+            public void onNothingSelected(AdapterView parent) {
+
+            }
+        });
+
     }
 
 
     /**
      * Created by Dimitri on 24/05/2014.
-     */
+     *
+     *
+     * Desabilidado momentaneamente - Vai ser utilizado na próxima funcionalidade do sistema
+     *
+
+
+
+
     protected void buscaContatos(String tipo, List<String> lista) {
 
         Cursor cursor = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null, null);
@@ -226,7 +238,7 @@ public abstract class BaseOperadora extends Activity {
         contatos = new String[lista.size()];
         lista.toArray(contatos);
     }
-
+     */
 
 
     /**
