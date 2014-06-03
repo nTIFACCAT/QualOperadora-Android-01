@@ -3,6 +3,7 @@ package com.android.qualoperadora01.app;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentUris;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
@@ -128,11 +129,9 @@ public abstract class BaseOperadora extends Activity {
         // Recebe uma intent de retorno o qual podemos recuperar os dados, ou seja.
         // Ao retornar da intent chamada o Android traz uma nova intent como retorno e então podemos manipular os dados de retorno
 
-        //Spinner que recebe os números do contato
-        final Spinner spinnerNumeros = (Spinner) findViewById(R.id.spinnerNumeros);
         // Text que recebe o número selecionado, representa a txtFone do layout da activity_main.xml
         final EditText tFone = (EditText) findViewById(R.id.txtFone);
-        TextView tNome = (TextView) findViewById(R.id.textView2);
+
        //Uri que identifica o contato, resultado do click no contato da agenda do android. Trazido pela intent de retorno
         Uri uri = intent.getData();
        /*Busca o contato no banco de dados do telefone utilizando a Uri do contato selecionado
@@ -157,18 +156,42 @@ public abstract class BaseOperadora extends Activity {
         //Array com os número do contato
         final ArrayList<String> numeros = new ArrayList<String>();
         // Adapter para a spinner dos números
-        ArrayAdapter<String> adapterNumeros = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item,numeros);
+        ArrayAdapter<String> adapterNumeros = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item,numeros);
 
         Cursor telefones = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,ContactsContract.CommonDataKinds.Phone.CONTACT_ID+"="+idContato, null, null);
         //Posiciona o cursor
         telefones.moveToFirst();
-        //Recupera o número do contato
-
+        //Recupera os números do contato se o resultado da pesquisa for maior que zero
         if (telefones.getCount()>0){
             Log.i("Telefones Count ", String.valueOf(telefones.getCount()));
             for (int i=0;i<telefones.getCount();i++){
+                //Preenche o array numeros com os números do contato
                 numeros.add(telefones.getString(telefones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)));
                 telefones.moveToNext();
+            }
+
+            /*
+            * Caso o contato tenha mais que um número então exibe uma mensagem de alerta com o array de números,
+            * senão seta no campo de pesquisa o único número do contato
+            */
+
+            if (numeros.size()>1){
+                final AlertDialog.Builder alertaNumeros = new AlertDialog.Builder(this);
+                alertaNumeros.setTitle("Contato: "+nomeContato);
+                alertaNumeros.setPositiveButton("Ok", null);
+                alertaNumeros.setAdapter(adapterNumeros, null);
+                alertaNumeros.setSingleChoiceItems(adapterNumeros,0,new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        tFone.setText(numeros.get(i));
+                    }
+                });
+
+                alertaNumeros.show();
+
+
+            }else{
+                tFone.setText(numeros.get(0));
             }
 
         }else {
@@ -176,19 +199,16 @@ public abstract class BaseOperadora extends Activity {
             tFone.setText("");
         }
 
-        tNome.setText(nomeContato);
-        spinnerNumeros.setAdapter(adapterNumeros);
         c.close();
         telefones.close();
 
+    }
         /**
          *
          * Created by Dimitri on 24/05/2014.
-         * Modificado - Adaptado a leitura da agenda do telefone
+         * Desabilitado - Trocamos por uma alert dialog que pode selecionar o número caso tenha mais de um
          *
-         *
-         *
-*/
+
         spinnerNumeros.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView parent, View v, int posicao, long id) {
@@ -200,16 +220,19 @@ public abstract class BaseOperadora extends Activity {
 
                 if (!spinnerContatos.getSelectedItem().toString().equals("")) {
                     btBuscar.performClick();
-                }*/
+                }
 
             }
             @Override
             public void onNothingSelected(AdapterView parent) {
 
             }
+
+
+
         });
 
-    }
+         */
 
 
     /**
