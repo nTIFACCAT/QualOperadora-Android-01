@@ -3,9 +3,14 @@ package com.android.qualoperadora01.app;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.ContentUris;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.AsyncTask;
+import android.provider.ContactsContract;
 import android.util.JsonReader;
 import android.util.Log;
 import android.widget.ArrayAdapter;
@@ -47,7 +52,6 @@ import java.util.List;
  */
 public class DownloadJSON extends BaseOperadora {
 
-
     @Override
     protected void buscarDados(String telefone) {
 
@@ -62,8 +66,8 @@ public class DownloadJSON extends BaseOperadora {
         final Telefone fone = new Telefone();
         fone.setNumero(telefone);
 
-        final String URL = "http://qualoperadora.herokuapp.com/consulta/";
-        //final String URL = "http://private-61fc-rodrigoknascimento.apiary-mock.com/consulta/";
+        //final String URL = "http://qualoperadora.herokuapp.com/consulta/";
+        final String URL = "http://private-61fc-rodrigoknascimento.apiary-mock.com/consulta/";
 
         final ProgressDialog dialogo = new ProgressDialog(DownloadJSON.this);
 
@@ -82,9 +86,14 @@ public class DownloadJSON extends BaseOperadora {
                 String result = null;
                 HttpClient httpCliente = new DefaultHttpClient();
 
-                try {
 
+
+                try {
                     HttpGet httpGet = new HttpGet(URL+fone.getNumero());
+                    //; charset=utf-8
+                    httpGet.setHeader("Content-Type", "application/json");
+
+
                     Log.i("Leu URL:", URL);
                     HttpResponse response = httpCliente.execute(httpGet);
                     Log.i("Exec: ", "Executou response..");
@@ -92,9 +101,11 @@ public class DownloadJSON extends BaseOperadora {
 
                     if (entity != null) {
 
-                        result = EntityUtils.toString(entity);
 
-                        Log.i("URL:", URL);
+                        result = EntityUtils.toString(entity);
+                        Log.i("Result - Entity ", String.valueOf(entity));
+                        Log.i("URL: ",URL+fone.getNumero());
+
                         Log.i("Fone informado:  ", fone.getNumero());
 
                         try {
@@ -199,35 +210,38 @@ public class DownloadJSON extends BaseOperadora {
                      }
                 }
 
-           //Método toString e traz o JSON em forma de string
-/*            private String toString(InputStream is)
-                    throws IOException {
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                try {
-                    byte[] buf = new byte[1024];
 
-                    int lidos;
-                    //Log.i("Início Lidos: ", String.valueOf(lidos));
-                    // Read lê um byte da inputStream
-                    while ((lidos = is.read(buf)) > 0) {
-                        Log.i("LEU: ", String.valueOf(lidos));
-                        baos.write(buf, 0, lidos);
-                    }
-                    byte[] bytes = baos.toByteArray();
-
-                    Log.i("String de Bytes", String.valueOf(bytes));
-                    String result = new String(bytes);
-                    return result;
-
-                }finally {
-                    baos.close();
-                }
-            }
-*/
         };
 
         // Executa a task (AsyncTask) acima com todos os métodos
         task.execute();
 }
+
+/*
+    protected void Ligar(String numero){
+
+        if (numero.equals("")) {
+            AlertDialog.Builder msg = new AlertDialog.Builder(DownloadJSON.this);
+            msg.setIcon(R.drawable.warning);
+            msg.setTitle("Operadora");
+            msg.setMessage("O telefone deve ser informado!");
+            msg.setNeutralButton("OK", null);
+            msg.show();
+            return;
+        } else{
+            //Representa o endereço que desejamos abrir
+            String tel = "tel:" + numero;
+            Uri uri = Uri.parse(tel);
+            //Cria a Intent com o endereço que fará a ligação
+            Intent i = new Intent(Intent.ACTION_CALL, uri);
+            //Envia a mensagem para o sistema operacional
+            startActivity(i);
+        }
+    }
+
+
+
+*/
+
 
 }

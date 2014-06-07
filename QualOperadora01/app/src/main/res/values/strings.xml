@@ -4,5 +4,7 @@
     <string name="app_name">QualOperadora</string>
     <string name="hello_world">   Qual Operadora </string>
     <string name="action_settings">Settings</string>
+    <string name="action_ligar">Ligar</string>
+    <string name="action_agenda">Agenda</string>
 
 </resources>

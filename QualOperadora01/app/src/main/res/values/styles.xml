@@ -2,7 +2,9 @@
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <!-- Customize your theme here. -->
+        <!-- Customização do tema padrão, adicionando conforme necessidade. -->
+        <item name="android:windowBackground">@drawable/background_android1</item>
+
     </style>
 
 </resources>
