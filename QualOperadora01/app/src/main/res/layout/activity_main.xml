@@ -43,8 +43,8 @@
         android:layout_height="wrap_content"
         android:text="Consultar"
         android:id="@+id/btBuscar"
-        android:layout_above="@+id/txtUF"
-        android:layout_toRightOf="@+id/txtUF" />
+        style="@style/estiloQualOperadora"
+        />
 
     <ListView
         android:layout_width="374dp"

@@ -1,5 +1,6 @@
 package com.android.qualoperadora01.app;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentUris;
@@ -12,7 +13,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.v7.app.ActionBarActivity;
-import android.text.Editable;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -36,13 +36,13 @@ public abstract class BaseOperadora extends Activity {
     // Constante para identificar a sub-activity lançada pelo botão agenda
     private static final int SELECIONAR_CONTATO = 1;
 
-
-
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Button btBuscar = (Button) findViewById(R.id.btBuscar);
         final EditText txtTelefone = (EditText) findViewById(R.id.txtFone);
+        ActionBar actionBar = getActionBar();
+        //actionBar.hide();
 
 
 /**
@@ -77,14 +77,10 @@ public abstract class BaseOperadora extends Activity {
 
     }
 
-
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu){
-
-        MenuInflater inflater  = getMenuInflater();
-        inflater.inflate(R.menu.main, menu);
-        return super.onCreateOptionsMenu(menu);
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
     }
 
     public boolean onOptionsItemSelected (MenuItem item){

@@ -66,13 +66,12 @@ public class DownloadJSON extends BaseOperadora {
         final Telefone fone = new Telefone();
         fone.setNumero(telefone);
 
-        //final String URL = "http://qualoperadora.herokuapp.com/consulta/";
-        final String URL = "http://private-61fc-rodrigoknascimento.apiary-mock.com/consulta/";
+        final String URL = new String("http://qualoperadora.herokuapp.com/consulta/");
+        //final String URL = "http://private-61fc-rodrigoknascimento.apiary-mock.com/consulta/";
 
         final ProgressDialog dialogo = new ProgressDialog(DownloadJSON.this);
 
-
-        // Instancia uma AsyncTask para executar a pesquisa na web.
+       // Instancia uma AsyncTask para executar a pesquisa na web.
         AsyncTask<String, Void, String> task = new AsyncTask<String, Void, String>() {
 
            @Override
@@ -81,36 +80,25 @@ public class DownloadJSON extends BaseOperadora {
                 * Método que executa automaticamente em uma thread
                 * Faz o processamento em Background
                 * */
-                Log.i("Info: ", "Entrou na Async");
-                Log.i("fone: ", fone.getNumero());
                 String result = null;
                 HttpClient httpCliente = new DefaultHttpClient();
 
-
-
                 try {
-                    HttpGet httpGet = new HttpGet(URL+fone.getNumero());
+                    HttpGet httpGet = new HttpGet(URL.concat(fone.getNumero().toString()));
+                    Log.i("URL URI", httpGet.getURI().toString());
+
                     //; charset=utf-8
                     httpGet.setHeader("Content-Type", "application/json");
-
-
-                    Log.i("Leu URL:", URL);
                     HttpResponse response = httpCliente.execute(httpGet);
-                    Log.i("Exec: ", "Executou response..");
                     HttpEntity entity = response.getEntity();
 
                     if (entity != null) {
 
-
+                        Log.i("Entity", "Entity <> null");
                         result = EntityUtils.toString(entity);
-                        Log.i("Result - Entity ", String.valueOf(entity));
-                        Log.i("URL: ",URL+fone.getNumero());
-
-                        Log.i("Fone informado:  ", fone.getNumero());
-
+                        Log.i("Resultado: ", result);
                         try {
                             // Instancia um objeto JSON com base no resultado obtido
-                            Log.i("RESULT depois de entity", result);
                             JSONObject json = new JSONObject(result);
 
                             // Seta os dados na classe telefone
@@ -183,12 +171,6 @@ public class DownloadJSON extends BaseOperadora {
 
                 //Log.i("Detalhes : ", "Portabilidade:"+ detalhes[0][1]+" Estado: "+ detalhes[0][0]);
 
-                Log.i("Retorno conexão:  ", "Retornou dados corretos: ");
-                Log.i("Número:  ", fone.getNumero());
-                Log.i("Operadora:  ", fone.getOperadora());
-                Log.i("Estado:  ", fone.getEstado());
-                Log.i("Portablidade:  ", portabilidade);
-
                 // Seta os valores na lista
                 lista.setAdapter(adapter);
                 ImageView imgOperadora = (ImageView) findViewById(R.id.imageView);
@@ -209,39 +191,11 @@ public class DownloadJSON extends BaseOperadora {
                         dialogo.dismiss();
                      }
                 }
-
-
         };
 
         // Executa a task (AsyncTask) acima com todos os métodos
         task.execute();
 }
-
-/*
-    protected void Ligar(String numero){
-
-        if (numero.equals("")) {
-            AlertDialog.Builder msg = new AlertDialog.Builder(DownloadJSON.this);
-            msg.setIcon(R.drawable.warning);
-            msg.setTitle("Operadora");
-            msg.setMessage("O telefone deve ser informado!");
-            msg.setNeutralButton("OK", null);
-            msg.show();
-            return;
-        } else{
-            //Representa o endereço que desejamos abrir
-            String tel = "tel:" + numero;
-            Uri uri = Uri.parse(tel);
-            //Cria a Intent com o endereço que fará a ligação
-            Intent i = new Intent(Intent.ACTION_CALL, uri);
-            //Envia a mensagem para o sistema operacional
-            startActivity(i);
-        }
-    }
-
-
-
-*/
 
 
 }

@@ -1,18 +1,19 @@
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:context="com.android.qualoperadora01.app.MainActivity" >
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-
-    <item android:id="@+id/action_ligar"
+    <item
+        android:id="@+id/action_ligar"
+        android:orderInCategory="100"
         android:title="Ligar"
-        android:orderInCategory="100"
-        app:showAsAction="ifRoom"/>
+        android:icon="@android:drawable/sym_action_call"
+        android:showAsAction="ifRoom|withText"
+        />
 
-    <item android:id="@+id/action_agenda"
+    <item
+        android:id="@+id/action_agenda"
+        android:orderInCategory="100"
         android:title="Agenda"
-        android:orderInCategory="100"
-        app:showAsAction="ifRoom"/>
-
+        android:icon="@drawable/contact"
+        android:showAsAction="ifRoom|withText"
+        />
 
 </menu>
