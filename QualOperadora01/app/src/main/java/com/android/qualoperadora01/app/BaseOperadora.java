@@ -223,80 +223,88 @@ public abstract class BaseOperadora extends Activity {
         // Text que recebe o número selecionado, representa a txtFone do layout da activity_main.xml
         final EditText tFone = (EditText) findViewById(R.id.txtFone);
 
-        //Uri que identifica o contato, resultado do click no contato da agenda do android. Trazido pela intent de retorno
-        Uri uri = intent.getData();
+        /*
+        * Se não for selecionado nenhum contato então vai retornar 0
+        * Se for diferente de zero e o retonro for SELECIONARCONTATO que é o código da intent que chamou a agenda
+        * então trata os números do contato
+        */
+        if (resulTCode!=0&&requestCode==SELECIONAR_CONTATO) {
+
+            //Uri que identifica o contato, resultado do click no contato da agenda do android. Trazido pela intent de retorno
+            Uri uri = intent.getData();
        /*Busca o contato no banco de dados do telefone utilizando a Uri do contato selecionado
         O cursor c contém os dados do contato selecionado
         */
-        Cursor c = getContentResolver().query(uri, null, null, null, null);
-        c.moveToNext();
+            Cursor c = getContentResolver().query(uri, null, null, null, null);
+            c.moveToNext();
 
         /*
         * O contato não possui todos os dados necessários referentes aos números , pois são guardados em tabelas diferentes
         *  Então pega-se o idContato da Uri atual para servir de filtro para pesquisa no banco de dados que contém os demais dados
         * */
 
-        long idContato = ContentUris.parseId(uri);
-        String nomeContato = c.getString(c.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
+            long idContato = ContentUris.parseId(uri);
+            String nomeContato = c.getString(c.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
 
         /*
          *  Novo cursor para buscar os demais dados do contato. O primeiro parâmentro, obrigatório, é a URI onde constao os dados dos contatos, o terceiro é o parâmetro de filtro,
          *  Funciona como a cláusula Where de uma consulta SQL
          */
 
-        //Array com os número do contato
-        final ArrayList<String> numeros = new ArrayList<String>();
-        // Adapter para a spinner dos números
-        ArrayAdapter<String> adapterNumeros = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_single_choice,numeros);
+            //Array com os número do contato
+            final ArrayList<String> numeros = new ArrayList<String>();
+            // Adapter para a spinner dos números
+            ArrayAdapter<String> adapterNumeros = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_single_choice, numeros);
 
-        Cursor telefones = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,ContactsContract.CommonDataKinds.Phone.CONTACT_ID+"="+idContato, null, null);
-        //Posiciona o cursor
-        telefones.moveToFirst();
-        //Recupera os números do contato se o resultado da pesquisa for maior que zero
-        if (telefones.getCount()>0){
-            Log.i("Telefones Count ", String.valueOf(telefones.getCount()));
-            for (int i=0;i<telefones.getCount();i++){
-                //Preenche o array numeros com os números do contato
-                numeros.add(telefones.getString(telefones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)));
-                telefones.moveToNext();
-            }
+            Cursor telefones = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, ContactsContract.CommonDataKinds.Phone.CONTACT_ID + "=" + idContato, null, null);
+            //Posiciona o cursor
+            telefones.moveToFirst();
+            //Recupera os números do contato se o resultado da pesquisa for maior que zero
+            if (telefones.getCount() > 0) {
+                Log.i("Telefones Count ", String.valueOf(telefones.getCount()));
+                for (int i = 0; i < telefones.getCount(); i++) {
+                    //Preenche o array numeros com os números do contato
+                    numeros.add(telefones.getString(telefones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)));
+                    telefones.moveToNext();
+                }
 
             /*
             * Caso o contato tenha mais que um número então exibe uma mensagem de alerta com o array de números,
             * senão seta no campo de pesquisa o único número do contato
             */
 
-            if (numeros.size()>1){
-                tFone.setText(numeros.get(0));
-                final AlertDialog.Builder alertaNumeros = new AlertDialog.Builder(this);
-                alertaNumeros.setTitle("Contato: "+nomeContato);
-                alertaNumeros.setPositiveButton("Ok", null);
-                alertaNumeros.setAdapter(adapterNumeros, null);
-                alertaNumeros.setSingleChoiceItems(adapterNumeros,0,new DialogInterface.OnClickListener() {
+                if (numeros.size() > 1) {
+                    tFone.setText(numeros.get(0));
+                    final AlertDialog.Builder alertaNumeros = new AlertDialog.Builder(this);
+                    alertaNumeros.setTitle("Contato: " + nomeContato);
+                    alertaNumeros.setPositiveButton("Ok", null);
+                    alertaNumeros.setAdapter(adapterNumeros, null);
+                    alertaNumeros.setSingleChoiceItems(adapterNumeros, 0, new DialogInterface.OnClickListener() {
 
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        tFone.setText(numeros.get(i));
-                    }
-                });
-                alertaNumeros.show();
-            }else{
-                tFone.setText(numeros.get(0));
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            tFone.setText(numeros.get(i));
+                        }
+                    });
+                    alertaNumeros.show();
+                } else {
+                    tFone.setText(numeros.get(0));
+                }
+            } else {
+                AlertDialog.Builder msg = new AlertDialog.Builder(BaseOperadora.this);
+                msg.setIcon(R.drawable.warning);
+                msg.setTitle("Operadora");
+                msg.setMessage("Não existe número cadastrado. ");
+                msg.setNeutralButton("OK", null);
+                msg.show();
+
+                tFone.setText("");
             }
-        }else {
-            AlertDialog.Builder msg = new AlertDialog.Builder(BaseOperadora.this);
-            msg.setIcon(R.drawable.warning);
-            msg.setTitle("Operadora");
-            msg.setMessage("Não existe número cadastrado. ");
-            msg.setNeutralButton("OK", null);
-            msg.show();
 
-            tFone.setText("");
+            c.close();
+            telefones.close();
+
         }
-
-        c.close();
-        telefones.close();
-
     }
 
     private void showMessage(String mensagem){
