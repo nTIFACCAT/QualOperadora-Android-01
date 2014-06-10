@@ -254,11 +254,13 @@ public abstract class BaseOperadora extends Activity {
             */
 
             if (numeros.size()>1){
+                tFone.setText(numeros.get(0));
                 final AlertDialog.Builder alertaNumeros = new AlertDialog.Builder(this);
                 alertaNumeros.setTitle("Contato: "+nomeContato);
                 alertaNumeros.setPositiveButton("Ok", null);
                 alertaNumeros.setAdapter(adapterNumeros, null);
                 alertaNumeros.setSingleChoiceItems(adapterNumeros,0,new DialogInterface.OnClickListener() {
+
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         tFone.setText(numeros.get(i));

@@ -1,20 +1,9 @@
 package com.android.qualoperadora01.app;
 
-import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.ContentUris;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.AsyncTask;
-import android.provider.ContactsContract;
-import android.util.JsonReader;
 import android.util.Log;
 import android.widget.ArrayAdapter;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 
@@ -23,23 +12,13 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.List;
 
 
 /**
@@ -53,7 +32,7 @@ import java.util.List;
 public class DownloadJSON extends BaseOperadora {
 
     @Override
-    protected void buscarDados(String telefone) {
+    protected void buscarDados(final String telefone) {
 
         // Instancia a ListView para visualizar os detalhes
         final ListView lista = (ListView) findViewById(R.id.listaDetalhes);
@@ -66,8 +45,8 @@ public class DownloadJSON extends BaseOperadora {
         final Telefone fone = new Telefone();
         fone.setNumero(telefone);
 
-        final String URL = new String("http://qualoperadora.herokuapp.com/consulta/");
-        //final String URL = "http://private-61fc-rodrigoknascimento.apiary-mock.com/consulta/";
+        //final String URL = new String("http://qualoperadora.herokuapp.com/consulta/");
+        final String URL = "http://private-61fc-rodrigoknascimento.apiary-mock.com/consulta/";
 
         final ProgressDialog dialogo = new ProgressDialog(DownloadJSON.this);
 
@@ -80,17 +59,15 @@ public class DownloadJSON extends BaseOperadora {
                 * Método que executa automaticamente em uma thread
                 * Faz o processamento em Background
                 * */
-                String result = null;
-                HttpClient httpCliente = new DefaultHttpClient();
+               String result = null;
+               HttpClient httpCliente = new DefaultHttpClient();
 
-                try {
-                    HttpGet httpGet = new HttpGet(URL.concat(fone.getNumero().toString()));
-                    Log.i("URL URI", httpGet.getURI().toString());
+               try {
 
-                    //; charset=utf-8
-                    httpGet.setHeader("Content-Type", "application/json");
-                    HttpResponse response = httpCliente.execute(httpGet);
-                    HttpEntity entity = response.getEntity();
+                   HttpGet httpGet = new HttpGet(URL+telefone);
+                   HttpResponse response = httpCliente.execute(httpGet);
+
+                   HttpEntity entity = response.getEntity();
 
                     if (entity != null) {
 
@@ -168,9 +145,6 @@ public class DownloadJSON extends BaseOperadora {
                 //Adiciona os valores no arraylist para compor a lista do adapter abaixo
                 detalhes.add(new String("Estado: " + fone.getEstado().toString()));
                 detalhes.add(new String("Portabilidade: " + portabilidade.toString()));
-
-                //Log.i("Detalhes : ", "Portabilidade:"+ detalhes[0][1]+" Estado: "+ detalhes[0][0]);
-
                 // Seta os valores na lista
                 lista.setAdapter(adapter);
                 ImageView imgOperadora = (ImageView) findViewById(R.id.imageView);
@@ -181,11 +155,12 @@ public class DownloadJSON extends BaseOperadora {
                     imgOperadora.setImageResource(R.drawable.tim);
                 } else if (fone.operadora.equals("Claro")) {
                     imgOperadora.setImageResource(R.drawable.claro);
-                } else if (fone.operadora.equals("Oi")) {
+                } else if (fone.operadora.equals("Oi")||fone.operadora.equals("Oi - Fixo")) {
                     imgOperadora.setImageResource(R.drawable.oi);
                 } else {
                     imgOperadora.setImageResource(R.drawable.warning);
                 }
+
                 // Finaliza a dialog que estava executando
                     if (dialogo.isShowing()) {
                         dialogo.dismiss();
@@ -196,6 +171,5 @@ public class DownloadJSON extends BaseOperadora {
         // Executa a task (AsyncTask) acima com todos os métodos
         task.execute();
 }
-
 
 }
