@@ -209,10 +209,8 @@ public abstract class BaseOperadora extends Activity {
         // Pega telefone do campo e grava como contato do telefone
         Intent intent = new Intent(Intent.ACTION_INSERT);
         intent.setType(ContactsContract.Contacts.CONTENT_TYPE);
-
         intent.putExtra(ContactsContract.Intents.Insert.NAME, "Novo Contato");
         intent.putExtra(ContactsContract.Intents.Insert.PHONE, numero);
-
         startActivity(intent);
     }
 
