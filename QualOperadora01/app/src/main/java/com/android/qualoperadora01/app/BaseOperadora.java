@@ -35,6 +35,7 @@ import java.util.ArrayList;
 public abstract class BaseOperadora extends Activity {
     // Constante para identificar a sub-activity lançada pelo botão agenda
     private static final int SELECIONAR_CONTATO = 1;
+    private static final int GRAVAR_CONTATO = 2;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -92,6 +93,9 @@ public abstract class BaseOperadora extends Activity {
                 return true;
             case R.id.action_agenda :
                 Agenda();
+                return true;
+            case R.id.action_gravar :
+                Gravar(telefone.getText().toString());
                 return true;
             default :
                 return  super . onOptionsItemSelected ( item );
@@ -199,6 +203,17 @@ public abstract class BaseOperadora extends Activity {
         Uri uri = Uri.parse("content://com.android.contacts/contacts/");
         Intent i = new Intent(Intent.ACTION_PICK, uri);
         startActivityForResult(i, SELECIONAR_CONTATO);
+    }
+
+    protected void Gravar(String numero) {
+        // Pega telefone do campo e grava como contato do telefone
+        Intent intent = new Intent(Intent.ACTION_INSERT);
+        intent.setType(ContactsContract.Contacts.CONTENT_TYPE);
+
+        intent.putExtra(ContactsContract.Intents.Insert.NAME, "Novo Contato");
+        intent.putExtra(ContactsContract.Intents.Insert.PHONE, numero);
+
+        startActivity(intent);
     }
 
 

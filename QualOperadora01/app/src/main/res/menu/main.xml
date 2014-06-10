@@ -16,4 +16,12 @@
         android:showAsAction="ifRoom|withText"
         />
 
+    <item
+        android:id="@+id/action_gravar"
+        android:orderInCategory="100"
+        android:title="Gravar"
+        android:icon="@drawable/agenda"
+        android:showAsAction="ifRoom|withText"
+        />
+
 </menu>
