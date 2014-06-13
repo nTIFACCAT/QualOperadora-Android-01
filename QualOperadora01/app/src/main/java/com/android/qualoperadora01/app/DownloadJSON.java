@@ -45,8 +45,8 @@ public class DownloadJSON extends BaseOperadora {
         final Telefone fone = new Telefone();
         fone.setNumero(telefone);
 
-        //final String URL = new String("http://qualoperadora.herokuapp.com/consulta/");
-        final String URL = "http://private-61fc-rodrigoknascimento.apiary-mock.com/consulta/";
+        //URL de pesquisa mais o número da pessoa para fazer o get
+        final String url = "http://qualoperadora.herokuapp.com/consulta/"+fone.getNumero();
 
         final ProgressDialog dialogo = new ProgressDialog(DownloadJSON.this);
 
@@ -59,54 +59,41 @@ public class DownloadJSON extends BaseOperadora {
                 * Método que executa automaticamente em uma thread
                 * Faz o processamento em Background
                 * */
-               String result = null;
-               HttpClient httpCliente = new DefaultHttpClient();
+               //String result = null;
+               //HttpClient httpCliente = new DefaultHttpClient();
 
+               //Chama a classe que faz executa o http na url
+               String result = Http.getInstance(Http.NORMAL).downloadArquivo(url);
                try {
 
-                   HttpGet httpGet = new HttpGet(URL+telefone);
-                   HttpResponse response = httpCliente.execute(httpGet);
+                   //HttpGet httpGet = new HttpGet(URL);
+                   //HttpResponse response = httpCliente.execute(httpGet);
 
-                   HttpEntity entity = response.getEntity();
+                   //HttpEntity entity = response.getEntity();
 
-                    if (entity != null) {
+                   if (result != null) {
 
-                        Log.i("Entity", "Entity <> null");
-                        result = EntityUtils.toString(entity);
-                        Log.i("Resultado: ", result);
-                        try {
-                            // Instancia um objeto JSON com base no resultado obtido
-                            JSONObject json = new JSONObject(result);
+                       try {
+                           // Instancia um objeto JSON com base no resultado obtido
+                           JSONObject json = new JSONObject(result);
+                           // Seta os dados na classe telefone
+                           fone.setOperadora(json.getString("operadora"));
+                           fone.setEstado(json.getString("estado"));
+                           fone.setPortabilidade(Boolean.parseBoolean(json.getString("portabilidade")));
 
-                            // Seta os dados na classe telefone
-                            fone.setOperadora(json.getString("operadora"));
-                            fone.setEstado(json.getString("estado"));
-                            fone.setPortabilidade(Boolean.parseBoolean(json.getString("portabilidade")));
+                       } catch (JSONException e) {
+                           Log.e("Erro Json", "Erro no parsing JSON");
+                           e.printStackTrace();
+                       }
+                       return result;
+                   }
 
-                        } catch (JSONException e) {
-                            Log.e("Erro Json", "Erro no parsing JSON");
-                            e.printStackTrace();
-                        }
-                        return result;
-                    }
+               } catch (Exception e) {
+                   Log.e("Erro http", "Falha ao acessar Web Service");
+               }
+               return result;
 
-                } catch (ClientProtocolException e) {
-                    // showMessage("Erro ao acessar. Verifique a conexão. Erro: "+e.getMessage());
-                    e.printStackTrace();
-                } catch (RuntimeException e) {
-                    //showMessage("Problemas na execução. Verifique a conexão. Erro: " + e.getMessage());
-                    e.printStackTrace();
-                } catch (UnknownHostException e) {
-                    //showMessage("Problemas no Host. Verifique a conexão. Erro: " + e.getMessage());
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (Exception e) {
-                    Log.e("Erro http", "Falha ao acessar Web Service");
-                }
-
-                return result;
-            }
+           }
 
 
             @Override
