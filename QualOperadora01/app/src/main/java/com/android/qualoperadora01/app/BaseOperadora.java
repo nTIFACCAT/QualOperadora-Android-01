@@ -36,6 +36,7 @@ public abstract class BaseOperadora extends Activity {
     // Constante para identificar a sub-activity lançada pelo botão agenda
     private static final int SELECIONAR_CONTATO = 1;
     private static final int GRAVAR_CONTATO = 2;
+    private String nomeContato=null; // Variável que recebe o nome do contato para exibir na tla depois da consulta.
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,12 +61,16 @@ public abstract class BaseOperadora extends Activity {
                 NetworkInfo netInfo = cm.getActiveNetworkInfo();
                 //Se o objeto for nulo ou nao tem conectividade retorna mensagem de erro, senão segue a execução
                 if ((netInfo != null) && (netInfo.isConnectedOrConnecting()) && (netInfo.isAvailable())) {
-                    if (txtTelefone.getText().toString().equals("")) {
-                        showMessage("O telefone deve ser informado!");
+                    if (txtTelefone.getText().toString().equals("")||txtTelefone.length()<10) {
+                        showMessage("O telefone informado está nulo ou é inválido. Verifique se o DDD foi informado.");
                         return;
                     } else {
                         String telefone = txtTelefone.getText().toString();
-                        buscarDados(telefone);
+
+
+                       // Seta null na lista para atualizar os dados quando for feita uma nova consulta
+                       final ArrayList<String> detalhes = null;
+                       buscarDados(telefone, nomeContato);
                     }
                 } else {
 
@@ -176,7 +181,7 @@ public abstract class BaseOperadora extends Activity {
     /*Método abstrato que as subclasses devem implementar como quiserem
       Esta classe apenas define a tela com o formulário para busca dos dados
     */
-    protected abstract void buscarDados (String telefone);
+    protected abstract void buscarDados (String telefone, String nome);
 
 
     // Método que recebe um número e faz a ligação
@@ -244,7 +249,7 @@ public abstract class BaseOperadora extends Activity {
         * */
 
             long idContato = ContentUris.parseId(uri);
-            String nomeContato = c.getString(c.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
+            this.nomeContato = c.getString(c.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
 
         /*
          *  Novo cursor para buscar os demais dados do contato. O primeiro parâmentro, obrigatório, é a URI onde constao os dados dos contatos, o terceiro é o parâmetro de filtro,

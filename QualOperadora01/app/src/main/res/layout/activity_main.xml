@@ -5,7 +5,6 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:weightSum="1">
 
-
     <TextView
         android:textSize="25dp"
         android:layout_width="200dp"
@@ -22,10 +21,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:text="DDD + telefone"
-        android:id="@+id/textView"
-
-        />
-
+        android:id="@+id/textView" />
 
     <EditText
         android:layout_width="200dp"
@@ -34,31 +30,28 @@
         android:inputType="phone"
         android:id="@+id/txtFone"
         android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true"
-        />
-
+        android:layout_centerHorizontal="true" />
 
     <Button
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="Consultar"
         android:id="@+id/btBuscar"
-        style="@style/estiloQualOperadora"
-        />
+        style="@style/estiloQualOperadora" />
+
 
     <ListView
-        android:layout_width="374dp"
-        android:layout_height="124dp"
+        android:layout_width="fill_parent"
+        android:layout_height="200dp"
         android:id="@+id/listaDetalhes"
         android:headerDividersEnabled="false" />
+
 
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:id="@+id/imageView"
-
- />
+        android:id="@+id/imageView" />
 
 
 </LinearLayout>

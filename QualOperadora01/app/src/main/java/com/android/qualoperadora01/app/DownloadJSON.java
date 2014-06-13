@@ -32,7 +32,7 @@ import java.util.ArrayList;
 public class DownloadJSON extends BaseOperadora {
 
     @Override
-    protected void buscarDados(final String telefone) {
+    protected void buscarDados(final String telefone, final String nome) {
 
         // Instancia a ListView para visualizar os detalhes
         final ListView lista = (ListView) findViewById(R.id.listaDetalhes);
@@ -59,17 +59,10 @@ public class DownloadJSON extends BaseOperadora {
                 * Método que executa automaticamente em uma thread
                 * Faz o processamento em Background
                 * */
-               //String result = null;
-               //HttpClient httpCliente = new DefaultHttpClient();
 
                //Chama a classe que faz executa o http na url
                String result = Http.getInstance(Http.NORMAL).downloadArquivo(url);
                try {
-
-                   //HttpGet httpGet = new HttpGet(URL);
-                   //HttpResponse response = httpCliente.execute(httpGet);
-
-                   //HttpEntity entity = response.getEntity();
 
                    if (result != null) {
 
@@ -94,7 +87,6 @@ public class DownloadJSON extends BaseOperadora {
                return result;
 
            }
-
 
             @Override
             protected void onPreExecute() {
@@ -132,17 +124,19 @@ public class DownloadJSON extends BaseOperadora {
                 //Adiciona os valores no arraylist para compor a lista do adapter abaixo
                 detalhes.add(new String("Estado: " + fone.getEstado().toString()));
                 detalhes.add(new String("Portabilidade: " + portabilidade.toString()));
+                detalhes.add(new String("Nome: "+nome));
+
                 // Seta os valores na lista
                 lista.setAdapter(adapter);
                 ImageView imgOperadora = (ImageView) findViewById(R.id.imageView);
 
                 if (fone.operadora.equals("Vivo - Celular")) {
                     imgOperadora.setImageResource(R.drawable.vivo);
-                } else if (fone.operadora.equals("Tim")) {
+                } else if (fone.operadora.equals("TIM - Celular")) {
                     imgOperadora.setImageResource(R.drawable.tim);
-                } else if (fone.operadora.equals("Claro")) {
+                } else if (fone.operadora.equals("Claro - Celular")) {
                     imgOperadora.setImageResource(R.drawable.claro);
-                } else if (fone.operadora.equals("Oi")||fone.operadora.equals("Oi - Fixo")) {
+                } else if (fone.operadora.equals("Oi - Celular")||fone.operadora.equals("Oi - Fixo")) {
                     imgOperadora.setImageResource(R.drawable.oi);
                 } else {
                     imgOperadora.setImageResource(R.drawable.warning);
