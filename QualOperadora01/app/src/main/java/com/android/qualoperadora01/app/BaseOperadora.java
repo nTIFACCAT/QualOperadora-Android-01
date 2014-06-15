@@ -1,8 +1,11 @@
 package com.android.qualoperadora01.app;
 
-import android.app.ActionBar;
+import android.os.Bundle;
+
+
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.ContentUris;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -10,46 +13,40 @@ import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import android.os.Bundle;
+import android.os.AsyncTask;
 import android.provider.ContactsContract;
-import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.ListView;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 
 
 /**
- *  Activity responsável pelos componentes visuais da tela de consulta.
- *  Esta activity não pode ser instanciada pois é uma classe abstrata, portanto todos os processamentos que envolvem atualizações de dados deverão ser feitos em
- *  activitys separadas como foi feita por exemplo a classe DownloadJSON que extende esta classe e fas os processamentos.
  *
- *
- * Created by Ricardo on 24/05/2014.
  */
-public abstract class BaseOperadora extends Activity {
+public class BaseOperadora extends Activity {
+
     // Constante para identificar a sub-activity lançada pelo botão agenda
     private static final int SELECIONAR_CONTATO = 1;
     private static final int GRAVAR_CONTATO = 2;
+    private static final String CATEGORIA="BaseOperadora"; // Para uso de log para ver onde está imprimindo as mensagens
     private String nomeContato=null; // Variável que recebe o nome do contato para exibir na tla depois da consulta.
+    final Telefone fone = new Telefone(); // Instancia do objeto telefone para setar os dados do telefone pesquisado
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Button btBuscar = (Button) findViewById(R.id.btBuscar);
         final EditText txtTelefone = (EditText) findViewById(R.id.txtFone);
-        ActionBar actionBar = getActionBar();
-        //actionBar.hide();
-
-
-/**
- * Created by Ricardo on 24/05/2014.
- */
 
         btBuscar.setOnClickListener(new View.OnClickListener() {
 
@@ -65,15 +62,11 @@ public abstract class BaseOperadora extends Activity {
                         showMessage("O telefone informado está nulo ou é inválido. Verifique se o DDD foi informado.");
                         return;
                     } else {
-                        String telefone = txtTelefone.getText().toString();
-
-
                        // Seta null na lista para atualizar os dados quando for feita uma nova consulta
                        final ArrayList<String> detalhes = null;
-                       buscarDados(telefone, nomeContato);
+                       buscarTelefone(txtTelefone.getText().toString());
                     }
                 } else {
-
                     showMessage("Verifique sua conexão com a internet!");
                     return;
                 }
@@ -102,6 +95,7 @@ public abstract class BaseOperadora extends Activity {
             case R.id.action_gravar :
                 Gravar(telefone.getText().toString());
                 return true;
+
             default :
                 return  super . onOptionsItemSelected ( item );
 
@@ -111,82 +105,114 @@ public abstract class BaseOperadora extends Activity {
 
 
     /**
-     * Created by Ricardo on 26/05/2014.
-     */
-
-        /**
-         *
-         * Created by Dimitri on 24/05/2014.
-         * Desabilitado - Trocamos por uma alert dialog que pode selecionar o número caso tenha mais de um
-         *
-
-        spinnerNumeros.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView parent, View v, int posicao, long id) {
-
-                tFone.setText(numeros.get(posicao));
-                /*
-                Dá pau no app quando executa o botão com o número que vem do contato porque ele está com mascara.
-                Tratar para aceitar assim (retirar máscara?)
-
-                if (!spinnerContatos.getSelectedItem().toString().equals("")) {
-                    btBuscar.performClick();
-                }
-
-            }
-            @Override
-            public void onNothingSelected(AdapterView parent) {
-
-            }
-
-
-
-        });
-
-         */
-
-
-    /**
-     * Created by Dimitri on 24/05/2014.
      *
-     *
-     * Desabilidado momentaneamente - Vai ser utilizado na próxima funcionalidade do sistema
-     *
-
-
-
-
-    protected void buscaContatos(String tipo, List<String> lista) {
-
-        Cursor cursor = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null, null);
-        while(cursor.moveToNext()) {
-            if (tipo == "nome" ) {
-                lista.add(cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)));
-            }
-            else {
-                lista.add(cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)));
-            }
-        }
-
-        String[] contatos;
-        contatos = new String[lista.size()];
-        lista.toArray(contatos);
-    }
-     */
-
-
-    /**
-     * Created by Ricardo on 24/05/2014.
-     */
-    /*Método abstrato que as subclasses devem implementar como quiserem
-      Esta classe apenas define a tela com o formulário para busca dos dados
+    * Método que faz a requisição dos dados para a classe Http
     */
-    protected abstract void buscarDados (String telefone, String nome);
+    public void buscarTelefone (final String telefone){
+        // Instancia a ListView para visualizar os detalhes
+        final ListView lista = (ListView) findViewById(R.id.listaDetalhes);
+        // Cria uma string para receber os dados utilizados no array declarado logo abaixo.
+        final ArrayList<String> detalhes = new ArrayList<String>();
+        // Instancia o adapter que recebe o array com os detalhes
+        final ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, detalhes);
+        // Classe telefone que receberá os valores
+
+        final ProgressDialog dialogo = new ProgressDialog(this);
+
+        // Instancia uma AsyncTask para executar a pesquisa na web em uma Thread fora da principal.
+        AsyncTask<String, Void, JSONObject> task = new AsyncTask<String, Void, JSONObject>() {
+
+            @Override
+            protected JSONObject doInBackground(String... strings) {
+                Http http = new Http();
+                /*
+                * Método que executa automaticamente a AssyncTask
+                * Faz o processamento em Background
+                * */
+                //Chama o método que executa a pesquisa que retorna um Json
+                JSONObject json = http.consultaNumero(telefone);
+                //Passa o json para o método onPostExecute
+                return json;
+            }
+
+            @Override
+            protected void onPreExecute() {
+            /*
+            * Método chamado antes da execução da Thread
+            * Utilizado também para apresentar uma mensagem de que o processamento está sendo executado
+            * */
+                super.onPreExecute();
+                Log.i(CATEGORIA, "onPreExecute");
+                dialogo.setMessage("Pesquisando. Aguarde...");
+                dialogo.show();
+            }
+
+            @Override
+            protected void onPostExecute(JSONObject json) {
+              /*
+              * Método executado a atualização da interface na Thread principal
+              * Utilizado para atualizar as views da thread principal
+              *
+              * */
+                super.onPostExecute(json);
+                Log.i(CATEGORIA , "onPreExecute");
+                /* Atualiza a view da tela principal*/
+
+
+                /* Define valores da ListaDetalhes (ListView com duas linhas) que trará na tela os valores
+                   Estado e Portabilidade
+                */
+
+                if (json!= null) {
+                    try {
+                        // Seta os dados na classe telefone
+                        fone.setNumero(telefone);
+                        fone.setOperadora(json.getString("operadora"));
+                        fone.setEstado(json.getString("estado"));
+                        fone.setPortabilidade(Boolean.parseBoolean(json.getString("portabilidade")));
+                    } catch (JSONException e) {
+                        Log.e("Erro Json", "Erro no parsing JSON");
+                        e.printStackTrace();
+                    }
+                }
+                // Instancia uma string para receber o valor booleano de portabilidae da classe java
+                String portabilidade = new String();
+                if (fone.getPortabilidade()) {
+                    portabilidade = "Sim";
+                } else {
+                    portabilidade = "Não";
+                }
+                //Adiciona os valores no arraylist para compor a lista do adapter abaixo
+                detalhes.add(new String("Estado: " + fone.getEstado().toString()));
+                detalhes.add(new String("Portabilidade: " + portabilidade.toString()));
+                detalhes.add(new String("Nome: "+nomeContato));
+                // Seta os valores na lista
+                lista.setAdapter(adapter);
+                ImageView imgOperadora = (ImageView) findViewById(R.id.imageView);
+                if (fone.getOperadora().equals("Vivo - Celular")) {
+                    imgOperadora.setImageResource(R.drawable.vivo);
+                } else if (fone.getOperadora().equals("TIM - Celular")) {
+                    imgOperadora.setImageResource(R.drawable.tim);
+                } else if (fone.getOperadora().equals("Claro - Celular")) {
+                    imgOperadora.setImageResource(R.drawable.claro);
+                } else if (fone.getOperadora().equals("Oi - Celular")||fone.getOperadora().equals("Oi - Fixo")) {
+                    imgOperadora.setImageResource(R.drawable.oi);
+                } else {
+                    imgOperadora.setImageResource(R.drawable.warning);
+                }
+                // Finaliza a dialog que estava executando
+                if (dialogo.isShowing()) {
+                    dialogo.dismiss();
+                }
+            }
+        };
+        // Executa a task (AsyncTask) acima com todos os métodos
+        task.execute();
+    };
 
 
     // Método que recebe um número e faz a ligação
     protected void Ligar(String numero){
-
 
         if (numero.toString().equals("")) {
             showMessage("O telefone deve ser informado!");
@@ -209,6 +235,7 @@ public abstract class BaseOperadora extends Activity {
         Intent i = new Intent(Intent.ACTION_PICK, uri);
         startActivityForResult(i, SELECIONAR_CONTATO);
     }
+
 
     protected void Gravar(String numero) {
         // Pega telefone do campo e grava como contato do telefone
@@ -296,13 +323,7 @@ public abstract class BaseOperadora extends Activity {
                     tFone.setText(numeros.get(0));
                 }
             } else {
-                AlertDialog.Builder msg = new AlertDialog.Builder(BaseOperadora.this);
-                msg.setIcon(R.drawable.warning);
-                msg.setTitle("Operadora");
-                msg.setMessage("Não existe número cadastrado. ");
-                msg.setNeutralButton("OK", null);
-                msg.show();
-
+                showMessage("Não existe número cadastrado.");
                 tFone.setText("");
             }
 
@@ -314,7 +335,7 @@ public abstract class BaseOperadora extends Activity {
 
     private void showMessage(String mensagem){
         AlertDialog.Builder msg = new AlertDialog.Builder(BaseOperadora.this);
-        msg.setIcon(R.drawable.warning);
+        msg.setIcon(R.drawable.ic_stat_alerts_and_states_warning);
         msg.setTitle("Operadora");
         msg.setMessage(mensagem);
         msg.setNeutralButton("OK", null);

@@ -4,24 +4,24 @@
         android:id="@+id/action_ligar"
         android:orderInCategory="100"
         android:title="Ligar"
-        android:icon="@android:drawable/sym_action_call"
-        android:showAsAction="ifRoom|withText"
+        android:icon="@drawable/ic_action_device_access_call"
+        android:showAsAction="ifRoom"
         />
 
     <item
         android:id="@+id/action_agenda"
         android:orderInCategory="100"
         android:title="Agenda"
-        android:icon="@drawable/contact"
-        android:showAsAction="ifRoom|withText"
+        android:icon="@drawable/ic_action_social_cc_bcc"
+        android:showAsAction="ifRoom"
         />
 
     <item
         android:id="@+id/action_gravar"
         android:orderInCategory="100"
         android:title="Gravar"
-        android:icon="@drawable/agenda"
-        android:showAsAction="ifRoom|withText"
+        android:icon="@drawable/ic_action_social_add_person"
+        android:showAsAction="ifRoom"
         />
-
+    
 </menu>

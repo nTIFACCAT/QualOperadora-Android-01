@@ -1,43 +1,89 @@
 package com.android.qualoperadora01.app;
 
+import android.util.Log;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Map;
 
 /**
- * Created by RICARDO on 12/06/2014.
+ * Implementação dos métodos que fazem as operações na Web, GET e POST
  *
- * Classe utilizada para chamar as implementações de acesso a web,
- * GET, POST e também o get utilizando a API HttpCLiente Jakarta
  */
-public abstract class Http {
-    //Utliza UrlConnection
-    public static final int NORMAL=1;
-    //Utiliza o Jakarta HttpClient
-    public static final int JAKARTA=2;
-    public static Http getInstance(int tipo){
-        switch (tipo){
-            case NORMAL:
-                //UrlConnection
-                return new HttpNormalImpl();
-            case JAKARTA:
-                return null;
-            /*
-            * TODO: Fazer a implemantação utilizando Jakarta HttpClient
-            * */
-                //return new HttpClientImpl();
+public class Http {
+    private final String CATEGORIA="HTTP";// Para uso de log para ver onde está imprimindo as mensagens
+    final String url = "http://qualoperadora.herokuapp.com/consulta/";
 
-            default:
-                //UrlConnection
-                return new HttpNormalImpl();
+
+    //Método que faz o GET na utl conforme o número
+    public JSONObject consultaNumero(String numero){
+
+        try {
+            //Cria a URL
+            URL u = new URL(url+numero);
+            HttpURLConnection conn = (HttpURLConnection) u.openConnection();
+            //Configura a requisição para GET
+            conn.setRequestMethod("GET");
+            conn.setDoInput(true);
+            conn.setDoOutput(false);
+            conn.connect();
+            InputStream in = conn.getInputStream();
+            String result = readString(in);
+            conn.disconnect();
+            JSONObject json = new JSONObject(result);
+            return json;
+
+        }catch (MalformedURLException e){
+            Log.e(CATEGORIA, e.getMessage(),e);
+        }catch (IOException e){
+            Log.e(CATEGORIA, e.getMessage(),e);
+        } catch (JSONException e) {
+          e.printStackTrace();
+            Log.e(CATEGORIA, e.getMessage(),e);
         }
+
+        return null;
+    }
+
+
+    // Método que faz a um POST e passando um Array de números e retorna os dados da URL de todos os números
+    public String consultaNúmerost(String url, Map map) {
+        return null;
+    }
+
+
+    //Faz a leitura do texto da InputStream retornada transformando em String
+    private String readString(InputStream in)throws IOException{
+        byte[] bytes = readBytes(in);
+        String texto = new String(bytes);
+        Log.i(CATEGORIA, "Http.readString: "+texto);
+        return texto;
 
     }
 
-    //Retorna o texto do arquivo ou Json conforme a url informada
-    public abstract String downloadArquivo(String url);
-    //Retorna os bytes da imagem
-    public abstract byte[] downloadImagem(String url);
-    //Faz post enviando parâmetos
-    public abstract String doPost(String url, Map map);
+    //Faz a leitura do array de bytes da InputStream retornada
+    private byte[] readBytes(InputStream in) throws IOException{
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        try{
+            byte[] buffer = new byte[1024];
+            int len;
+            while ((len = in.read(buffer))>0){
+                bos.write(buffer,0,len);
+            }
+            byte[] bytes = bos.toByteArray();
+            return bytes;
+        }finally {
+            bos.close();
+            in.close();
+        }
 
+    }
 
 }

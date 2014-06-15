@@ -27,14 +27,16 @@
         android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
+        android:textAlignment="center"
         android:inputType="phone"
         android:id="@+id/txtFone"
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true" />
 
     <Button
-        android:layout_width="fill_parent"
+        android:layout_width="150dp"
         android:layout_height="wrap_content"
+        android:layout_gravity="center"
         android:text="Consultar"
         android:id="@+id/btBuscar"
         style="@style/estiloQualOperadora" />

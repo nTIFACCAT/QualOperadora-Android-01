@@ -8,27 +8,17 @@
     <uses-permission android:name="android.permission.READ_CONTACTS"/>
 
     <application
-
         android:allowBackup="true"
         android:icon="@drawable/android"
         android:label=""
         android:theme="@style/AppTheme" >
         <activity
-            android:name="com.android.qualoperadora01.app.MainActivity"
+            android:name="com.android.qualoperadora01.app.BaseOperadora"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-
-        <activity android:name="com.android.qualoperadora01.app.DownloadJSON">
-            <intent-filter>
-                <action android:name="downloadJSON"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-
-            </intent-filter>
-
         </activity>
 
 
