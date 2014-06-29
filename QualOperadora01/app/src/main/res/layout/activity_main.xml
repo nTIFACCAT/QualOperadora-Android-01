@@ -3,7 +3,9 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:weightSum="1">
+    android:weightSum="1"
+    android:id="@+id/layoutPrincipal"
+    >
 
     <TextView
         android:textSize="25dp"
@@ -13,6 +15,7 @@
         android:id="@+id/textView1"
         android:layout_gravity="center"
         android:textColor="@android:color/background_dark"
+        android:layout_marginTop="100dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true" />
 
@@ -20,6 +23,7 @@
         android:layout_width="120dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
+        android:layout_marginTop="20dp"
         android:text="DDD + telefone"
         android:id="@+id/textView" />
 
@@ -37,23 +41,50 @@
         android:layout_width="150dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
+        android:background="@color/yellowGreen"
+        android:textColor="@color/branco"
         android:text="Consultar"
         android:id="@+id/btBuscar"
         style="@style/estiloQualOperadora" />
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/txtContato"
+        android:text="Contato: "
+        android:visibility="invisible"
 
-    <ListView
-        android:layout_width="fill_parent"
-        android:layout_height="200dp"
-        android:id="@+id/listaDetalhes"
-        android:headerDividersEnabled="false" />
+        />
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/txtEstado"
+        android:text="Estado: "
+        android:visibility="invisible"
+
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/txtPortabilidade"
+        android:text="Portabilidade: "
+        android:visibility="invisible"
+
+        />
 
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:id="@+id/imgOperadora"
+        android:visibility="invisible"
         android:layout_gravity="center"
-        android:id="@+id/imageView" />
+
+
+        />
+
+
 
 
 </LinearLayout>

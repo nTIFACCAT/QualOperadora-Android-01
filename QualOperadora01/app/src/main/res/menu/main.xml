@@ -1,5 +1,13 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
+
+    <item
+        android:id="@+id/action_atualizarAgenda"
+        android:orderInCategory="100"
+        android:title="Atualizar Agenda"
+        android:icon="@drawable/ic_action_navigation_refresh"
+        android:showAsAction="ifRoom"
+        />
     <item
         android:id="@+id/action_ligar"
         android:orderInCategory="100"
@@ -23,5 +31,5 @@
         android:icon="@drawable/ic_action_social_add_person"
         android:showAsAction="ifRoom"
         />
-    
+
 </menu>

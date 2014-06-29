@@ -6,5 +6,7 @@
     <string name="action_settings">Settings</string>
     <string name="action_ligar">Ligar</string>
     <string name="action_agenda">Agenda</string>
+    <string name="action_atualiza_agenda">Agenda</string>
+    <string name="action_gravar">Gravar</string>
 
 </resources>

@@ -1,8 +1,6 @@
 package com.android.qualoperadora01.app;
 
 import android.os.Bundle;
-
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -23,11 +21,18 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextView;
+
+
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 
 /**
@@ -41,6 +46,9 @@ public class BaseOperadora extends Activity {
     private static final String CATEGORIA="BaseOperadora"; // Para uso de log para ver onde está imprimindo as mensagens
     private String nomeContato=null; // Variável que recebe o nome do contato para exibir na tla depois da consulta.
     final Telefone fone = new Telefone(); // Instancia do objeto telefone para setar os dados do telefone pesquisado
+    // Instancia do layout para poder adicionar os componentes dinamicamente
+    //private LinearLayout layoutPrincipal = (LinearLayout) findViewById(R.id.layoutPrincipal);
+
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -95,6 +103,20 @@ public class BaseOperadora extends Activity {
             case R.id.action_gravar :
                 Gravar(telefone.getText().toString());
                 return true;
+            case R.id.action_atualizarAgenda:
+                AlertDialog.Builder alert = new AlertDialog.Builder(BaseOperadora.this);
+                alert.setPositiveButton("Sim", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        buscarTelefones();
+                    }
+                });
+                alert.setNegativeButton("Não",null);
+                alert.setMessage("Deseja atualizar toda sua agenda com ícones da operadora? ");
+                alert.setIcon(R.drawable.ic_stat_alerts_and_states_warning);
+                alert.setTitle("Operadora");
+                alert.show();
+                return true;
 
             default :
                 return  super . onOptionsItemSelected ( item );
@@ -102,22 +124,21 @@ public class BaseOperadora extends Activity {
         }
     }
 
-
-
     /**
      *
     * Método que faz a requisição dos dados para a classe Http
     */
     public void buscarTelefone (final String telefone){
         // Instancia a ListView para visualizar os detalhes
-        final ListView lista = (ListView) findViewById(R.id.listaDetalhes);
+        //final ListView lista = (ListView) findViewById(R.id.listaDetalhes);
         // Cria uma string para receber os dados utilizados no array declarado logo abaixo.
-        final ArrayList<String> detalhes = new ArrayList<String>();
+        //final ArrayList<String> detalhes = new ArrayList<String>();
         // Instancia o adapter que recebe o array com os detalhes
-        final ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, detalhes);
+        //final ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, detalhes);
         // Classe telefone que receberá os valores
 
         final ProgressDialog dialogo = new ProgressDialog(this);
+
 
         // Instancia uma AsyncTask para executar a pesquisa na web em uma Thread fora da principal.
         AsyncTask<String, Void, JSONObject> task = new AsyncTask<String, Void, JSONObject>() {
@@ -182,13 +203,19 @@ public class BaseOperadora extends Activity {
                 } else {
                     portabilidade = "Não";
                 }
-                //Adiciona os valores no arraylist para compor a lista do adapter abaixo
-                detalhes.add(new String("Estado: " + fone.getEstado().toString()));
-                detalhes.add(new String("Portabilidade: " + portabilidade.toString()));
-                detalhes.add(new String("Nome: "+nomeContato));
-                // Seta os valores na lista
-                lista.setAdapter(adapter);
-                ImageView imgOperadora = (ImageView) findViewById(R.id.imageView);
+
+
+                TextView txtEstado = (TextView) findViewById(R.id.txtEstado);
+                txtEstado.setText("Estado: " + fone.getEstado().toString());
+                txtEstado.setVisibility(View.VISIBLE);
+
+                TextView txtPortabilidade = (TextView) findViewById(R.id.txtPortabilidade);
+                txtPortabilidade.setText("Portabilidade: " + portabilidade.toString());
+                txtPortabilidade.setVisibility(View.VISIBLE);
+
+                ImageView imgOperadora = (ImageView) findViewById(R.id.imgOperadora);
+
+
                 if (fone.getOperadora().equals("Vivo - Celular")) {
                     imgOperadora.setImageResource(R.drawable.vivo);
                 } else if (fone.getOperadora().equals("TIM - Celular")) {
@@ -200,6 +227,9 @@ public class BaseOperadora extends Activity {
                 } else {
                     imgOperadora.setImageResource(R.drawable.warning);
                 }
+
+                imgOperadora.setVisibility(View.VISIBLE);
+
                 // Finaliza a dialog que estava executando
                 if (dialogo.isShowing()) {
                     dialogo.dismiss();
@@ -209,6 +239,116 @@ public class BaseOperadora extends Activity {
         // Executa a task (AsyncTask) acima com todos os métodos
         task.execute();
     };
+
+
+
+    /*
+    * Lê a agenda do telefone e passa um Array de números para a classe Http que faz a busca na Web pelos dados da operadora de cada
+    * número de cada contato
+    * */
+    public void buscarTelefones() {
+
+        final ProgressDialog dialogo = new ProgressDialog(this);
+
+
+        // Instancia uma AsyncTask para executar a pesquisa na web em uma Thread fora da principal.
+        AsyncTask<String, Void, JSONArray> task = new AsyncTask<String, Void, JSONArray>() {
+
+            @Override
+            protected JSONArray doInBackground(String... strings) {
+                Http http = new Http();
+                // JsonObject - recebe os telefones formando um objeto para fazer o post
+                JSONObject jsonObject = new JSONObject();
+                // JonArray - recebe os telefones formando um array para ser incluído no objeto
+                JSONArray jsonArray = new JSONArray();
+                // Visualiza a lista de contatos do Android
+                Uri uri = Uri.parse("content://com.android.contacts/contacts/");
+                //System.out.println("Contato ID: " + uri.toString());
+                Cursor c = getContentResolver().query(uri, null, null, null, null);
+
+                while (c.moveToNext()) {
+                    long idContato = Long.parseLong(c.getString(c.getColumnIndexOrThrow(ContactsContract.Contacts._ID)));
+                    String nomeContato = c.getString(c.getColumnIndexOrThrow(ContactsContract.Contacts.DISPLAY_NAME));
+                    System.out.println("ID " + idContato + "Nome: " + nomeContato);
+
+                    Cursor telefones = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, ContactsContract.CommonDataKinds.Phone.CONTACT_ID + "=" + idContato, null, null);
+                    //Posiciona o cursor
+                    telefones.moveToFirst();
+                    //Recupera os números do contato se o resultado da pesquisa for maior que zero
+                    if (telefones.getCount() > 0) {
+//                  Log.i("Telefones Count ", String.valueOf(telefones.getCount()));
+                        for (int i = 0; i < telefones.getCount(); i++) {
+                            String fone= new String(telefones.getString(telefones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)));
+                            jsonArray.put(fone);
+                            telefones.moveToNext();
+                        }
+                    }
+
+                }
+
+
+                try {
+                    jsonObject.put("phones",jsonArray);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                //Imprime o resultado formado pelo JSONOBJECT
+                System.out.println("JSON:  "+jsonObject);
+
+                // Passa para a classe http o jsonobject para busca dos dados
+
+                JSONArray retorno = http.consultaNumeros(jsonObject);
+
+                return retorno;
+            }
+
+
+            @Override
+            protected void onPreExecute() {
+            /*
+            * Método chamado antes da execução da Thread
+            * Utilizado também para apresentar uma mensagem de que o processamento está sendo executado
+            * */
+                super.onPreExecute();
+                Log.i(CATEGORIA, "onPreExecute");
+                dialogo.setMessage("Pesquisando. Aguarde a atualização dos dados. Pode demorar alguns minutos...");
+                dialogo.show();
+            }
+
+            @Override
+            protected void onPostExecute(JSONArray json) {
+              /*
+              * Método executado a atualização da interface na Thread principal
+              * Utilizado para atualizar as views da thread principal
+              *
+              * */
+                super.onPostExecute(json);
+                Log.i(CATEGORIA , "onPostExecute");
+                /* Atualiza a view da tela principal*/
+
+
+                /*
+                * TODO: Implpementar aqui  atualização da agendo com base no JSON recebido da web
+                * */
+
+
+                //Imprime o resultado do httppost
+                System.out.println("JSON retornado:  "+json);
+                showMessage("Agenda atualizada.");
+
+                // Finaliza a dialog que estava executando
+                if (dialogo.isShowing()) {
+                    dialogo.dismiss();
+                }
+            }
+        };
+        // Executa a task (AsyncTask) acima com todos os métodos
+        task.execute();
+
+
+    }
+
 
 
     // Método que recebe um número e faz a ligação
@@ -231,6 +371,7 @@ public class BaseOperadora extends Activity {
     // Método que chama a agenda do telefone
     protected void Agenda (){
         // Visualiza a lista de contatos
+
         Uri uri = Uri.parse("content://com.android.contacts/contacts/");
         Intent i = new Intent(Intent.ACTION_PICK, uri);
         startActivityForResult(i, SELECIONAR_CONTATO);
@@ -254,35 +395,33 @@ public class BaseOperadora extends Activity {
 
         // Text que recebe o número selecionado, representa a txtFone do layout da activity_main.xml
         final EditText tFone = (EditText) findViewById(R.id.txtFone);
-
         /*
         * Se não for selecionado nenhum contato então vai retornar 0
         * Se for diferente de zero e o retonro for SELECIONARCONTATO que é o código da intent que chamou a agenda
         * então trata os números do contato
         */
         if (resulTCode!=0&&requestCode==SELECIONAR_CONTATO) {
-
             //Uri que identifica o contato, resultado do click no contato da agenda do android. Trazido pela intent de retorno
             Uri uri = intent.getData();
+
        /*Busca o contato no banco de dados do telefone utilizando a Uri do contato selecionado
         O cursor c contém os dados do contato selecionado
         */
             Cursor c = getContentResolver().query(uri, null, null, null, null);
             c.moveToNext();
-
         /*
         * O contato não possui todos os dados necessários referentes aos números , pois são guardados em tabelas diferentes
         *  Então pega-se o idContato da Uri atual para servir de filtro para pesquisa no banco de dados que contém os demais dados
         * */
 
             long idContato = ContentUris.parseId(uri);
-            this.nomeContato = c.getString(c.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
+            System.out.println("ID " + idContato);
 
+            this.nomeContato = c.getString(c.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
         /*
          *  Novo cursor para buscar os demais dados do contato. O primeiro parâmentro, obrigatório, é a URI onde constao os dados dos contatos, o terceiro é o parâmetro de filtro,
          *  Funciona como a cláusula Where de uma consulta SQL
          */
-
             //Array com os número do contato
             final ArrayList<String> numeros = new ArrayList<String>();
             // Adapter para a spinner dos números
@@ -327,6 +466,9 @@ public class BaseOperadora extends Activity {
                 tFone.setText("");
             }
 
+            TextView txtNome= (TextView)findViewById(R.id.txtContato);
+            txtNome.setVisibility(View.VISIBLE);
+            txtNome.setText("Contato: "+nomeContato);
             c.close();
             telefones.close();
 
