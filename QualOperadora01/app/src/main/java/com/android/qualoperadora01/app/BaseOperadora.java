@@ -1,5 +1,6 @@
 package com.android.qualoperadora01.app;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -48,6 +49,11 @@ public class BaseOperadora extends Activity {
     final Telefone fone = new Telefone(); // Instancia do objeto telefone para setar os dados do telefone pesquisado
     // Instancia do layout para poder adicionar os componentes dinamicamente
     //private LinearLayout layoutPrincipal = (LinearLayout) findViewById(R.id.layoutPrincipal);
+    final String tickerText = "Você recebeu uma notificação"; //Variável utilizada para notificação de atualização da agenda
+    // Detalhes da mensagem, quem enviou e texto
+    final CharSequence titulo = "Operadora";
+    final CharSequence mensagem = "Faça a atualização da agenda do telefone com os ícones da operadora do número do contato.";
+
 
 
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,6 +87,8 @@ public class BaseOperadora extends Activity {
             }
 
         });
+
+        criarNotificacao(this,tickerText,titulo,mensagem);
 
     }
 
@@ -245,11 +253,11 @@ public class BaseOperadora extends Activity {
     /*
     * Lê a agenda do telefone e passa um Array de números para a classe Http que faz a busca na Web pelos dados da operadora de cada
     * número de cada contato
+    *
     * */
     public void buscarTelefones() {
 
         final ProgressDialog dialogo = new ProgressDialog(this);
-
 
         // Instancia uma AsyncTask para executar a pesquisa na web em uma Thread fora da principal.
         AsyncTask<String, Void, JSONArray> task = new AsyncTask<String, Void, JSONArray>() {
@@ -279,27 +287,25 @@ public class BaseOperadora extends Activity {
 //                  Log.i("Telefones Count ", String.valueOf(telefones.getCount()));
                         for (int i = 0; i < telefones.getCount(); i++) {
                             String fone= new String(telefones.getString(telefones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)));
+                            // Somente para teste, remove o primeiro caracter, o ZERO
+                            //fone = fone.substring(1);
+                            System.out.println("Telefone :"+fone);
                             jsonArray.put(fone);
                             telefones.moveToNext();
                         }
                     }
-
+                    telefones.close();
                 }
-
 
                 try {
                     jsonObject.put("phones",jsonArray);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-
                 //Imprime o resultado formado pelo JSONOBJECT
                 System.out.println("JSON:  "+jsonObject);
-
                 // Passa para a classe http o jsonobject para busca dos dados
-
                 JSONArray retorno = http.consultaNumeros(jsonObject);
-
                 return retorno;
             }
 
@@ -325,13 +331,11 @@ public class BaseOperadora extends Activity {
               * */
                 super.onPostExecute(json);
                 Log.i(CATEGORIA , "onPostExecute");
-                /* Atualiza a view da tela principal*/
-
 
                 /*
-                * TODO: Implpementar aqui  atualização da agendo com base no JSON recebido da web
+                * TODO: Implpementar aqui  atualização da agenda com base no JSON recebido da web
+                * Ler toda a agenda e ir gravando comparando o número contido no json e o da agenda gravando a imagem se for igual
                 * */
-
 
                 //Imprime o resultado do httppost
                 System.out.println("JSON retornado:  "+json);
@@ -475,6 +479,15 @@ public class BaseOperadora extends Activity {
         }
     }
 
+    // Exibe a notificação
+    protected void criarNotificacao(Context context, CharSequence mensagemBarraStatus, CharSequence titulo, CharSequence mensagem){
+        // Cria uma notificação que chama o serviço de atualização da agenda do telefone
+        final Intent it = new Intent("SERVICE_1");
+        //Intent intent = new Intent(this,ServicoTelefones.class);
+        NotificationUtil.create(this,mensagemBarraStatus,titulo,mensagem,R.drawable.ic_launcher,R.drawable.ic_launcher,it);
+
+    }
+
     private void showMessage(String mensagem){
         AlertDialog.Builder msg = new AlertDialog.Builder(BaseOperadora.this);
         msg.setIcon(R.drawable.ic_stat_alerts_and_states_warning);
@@ -483,4 +496,6 @@ public class BaseOperadora extends Activity {
         msg.setNeutralButton("OK", null);
         msg.show();
     }
+
+
 }

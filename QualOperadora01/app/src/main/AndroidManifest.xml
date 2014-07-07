@@ -10,7 +10,7 @@
     <application
         android:allowBackup="true"
         android:icon="@drawable/android"
-        android:label=""
+        android:label="qualOperadora"
         android:theme="@style/AppTheme" >
         <activity
             android:name="com.android.qualoperadora01.app.BaseOperadora"
@@ -20,6 +20,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <service android:name=".ServicoTelefones" android:exported="false">
+            <intent-filter>
+                <action android:name="SERVICE_1"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+
+            </intent-filter>
+        </service>
+
 
 
     </application>
