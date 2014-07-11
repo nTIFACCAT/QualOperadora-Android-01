@@ -16,6 +16,11 @@ import org.json.JSONObject;
  * Created by RICARDO on 06/07/2014.
  */
 public class ServicoTelefones extends Service implements Runnable {
+    final String tickerText = "Você recebeu uma notificação"; //Variável utilizada para notificação de atualização da agenda
+    // Detalhes da mensagem, quem enviou e texto
+    final CharSequence titulo = "Operadora";
+    CharSequence mensagem = "";
+
     private static final String CATEGORIA= "Service Operadora";
     private boolean ativo;
 
@@ -32,8 +37,18 @@ public class ServicoTelefones extends Service implements Runnable {
 
     @Override
     public int onStartCommand(Intent intent, int flags,int startId){
+
+        // Array de linhas para passar como texto da mensagem
+        String[] lines=new String[]{"Contatos em atualização.","Execução em segundo plano. É possível realizar outras tarefas."};
+        //lines[0]="Contatos em atualização.";
+        //lines[1]="Execução em segundo plano. É possível realizar outras tarefas.";
+        mensagem="Contatos em atualização.";
+
+        NotificationUtil.create(this,tickerText,titulo,mensagem,null,R.drawable.ic_action_action_about,R.drawable.ic_action_action_about,null);
+
         //Método chamado depois do onCreate(), logo depois que o serviço é iniciado
         //O parâmetro <StartId> representa o identificador deste serviço
+
         ativo=true;
         //Delega parra auma Thread (passamos o nome no construtor para visuaalizar no debug)
         new Thread(this,"Servico-"+startId).start();
@@ -66,7 +81,7 @@ public class ServicoTelefones extends Service implements Runnable {
         while (c.moveToNext()) {
             long idContato = Long.parseLong(c.getString(c.getColumnIndexOrThrow(ContactsContract.Contacts._ID)));
             String nomeContato = c.getString(c.getColumnIndexOrThrow(ContactsContract.Contacts.DISPLAY_NAME));
-            System.out.println("ID " + idContato + "Nome: " + nomeContato);
+            //System.out.println("ID " + idContato + "Nome: " + nomeContato);
 
             Cursor telefones = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, ContactsContract.CommonDataKinds.Phone.CONTACT_ID + "=" + idContato, null, null);
             //Posiciona o cursor
@@ -78,7 +93,7 @@ public class ServicoTelefones extends Service implements Runnable {
                     String fone= new String(telefones.getString(telefones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)));
                     // Somente para teste, remove o primeiro caracter, o ZERO
                     //fone = fone.substring(1);
-                    System.out.println("Telefone :"+fone);
+                    //System.out.println("Telefone :"+fone);
                     jsonArray.put(fone);
                     telefones.moveToNext();
                 }
@@ -96,6 +111,15 @@ public class ServicoTelefones extends Service implements Runnable {
         // Passa para a classe http o jsonobject para busca dos dados
         JSONArray retorno = http.consultaNumeros(jsonObject);
         System.out.println("Retorno JsonArray:  "+retorno);
+        // Cria uma notificação avisando que a atualização foi concluída
+        // Envia o último parâmentro como null pois a notificação serve somente para aviso e não executará nenhuma ação se for clicada
+        mensagem="Contatos atualizados com o ícone da operadora.";
+        // Array de linhas para passar como texto da mensagem
+        String[] lines = new String[]{"Contatos atualizados"};
+        //lines[0]="Contatos atualizados";
+        //lines[1]="Verifique a agenda. ";
+
+        NotificationUtil.create(this,tickerText,titulo,mensagem,lines,R.drawable.ic_action_action_about,R.drawable.ic_action_action_about,null);
 
 
     }

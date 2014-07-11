@@ -49,10 +49,11 @@ public class BaseOperadora extends Activity {
     final Telefone fone = new Telefone(); // Instancia do objeto telefone para setar os dados do telefone pesquisado
     // Instancia do layout para poder adicionar os componentes dinamicamente
     //private LinearLayout layoutPrincipal = (LinearLayout) findViewById(R.id.layoutPrincipal);
+
     final String tickerText = "Você recebeu uma notificação"; //Variável utilizada para notificação de atualização da agenda
     // Detalhes da mensagem, quem enviou e texto
     final CharSequence titulo = "Operadora";
-    final CharSequence mensagem = "Faça a atualização da agenda do telefone com os ícones da operadora do número do contato.";
+    final CharSequence mensagem = "Faça a atualização da agenda do telefone. ";
 
 
 
@@ -484,7 +485,17 @@ public class BaseOperadora extends Activity {
         // Cria uma notificação que chama o serviço de atualização da agenda do telefone
         final Intent it = new Intent("SERVICE_1");
         //Intent intent = new Intent(this,ServicoTelefones.class);
-        NotificationUtil.create(this,mensagemBarraStatus,titulo,mensagem,R.drawable.ic_launcher,R.drawable.ic_launcher,it);
+        // Array de linhas para passar como texto da mensagem
+        String[] lines=new String[]{"Atualize a agenda do telefone.",
+                                    "Ao clicar na mensagem todos os contatos",
+                                    "serão atualizados.",
+                                    "Se não deseja atualizar ignore limpando",
+                                    "esta notificação"};
+        //lines[0]="Atualize a agenda do telefone.";
+        //lines[1]="Ao clicar na mensagem todos os contatos serão atualizados.";
+        //lines[2]="Se não deseja atualizar ignore limpando esta notificação";
+
+        NotificationUtil.create(this,mensagemBarraStatus,titulo,mensagem,lines,R.drawable.ic_action_action_about,R.drawable.ic_action_action_about,it);
 
     }
 
