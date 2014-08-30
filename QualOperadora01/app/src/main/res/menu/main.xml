@@ -4,8 +4,8 @@
     <item
         android:id="@+id/action_atualizarAgenda"
         android:orderInCategory="100"
-        android:title="Atualizar Agenda"
-        android:icon="@drawable/ic_action_navigation_refresh"
+        android:title="Agenda Operadora"
+        android:icon="@drawable/ic_action_social_group"
         android:showAsAction="ifRoom"
         />
     <item

@@ -8,5 +8,6 @@
     <string name="action_agenda">Agenda</string>
     <string name="action_atualiza_agenda">Agenda</string>
     <string name="action_gravar">Gravar</string>
+    <string name="title_activity_mostra_agenda">Agenda</string>
 
 </resources>

@@ -4,6 +4,7 @@ import android.util.Log;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -34,16 +35,32 @@ public class Http{
     public JSONObject consultaNumero(String numero){
 
         try {
+
+
             //Cria a URL
             URL u = new URL(url+numero);
+            Log.i(CATEGORIA,url+numero);
             HttpURLConnection conn = (HttpURLConnection) u.openConnection();
             //Configura a requisição para GET
+
+
             conn.setRequestMethod("GET");
+
+            conn.setRequestProperty("Accept-Language","application/json");
+            conn.setRequestProperty("User-Agent","Mozilla/5.0  (Windows NT 5.1) AppleWebKit/535.11 (KHTML, like Gecko)  Chrome/17.0.963.56 Safari/535.11");
+            conn.setRequestProperty("Content-type", "application/json");
+
             conn.setDoInput(true);
             conn.setDoOutput(false);
+
             conn.connect();
+            Log.i(CATEGORIA, "conn.getInputStream");
             InputStream in = conn.getInputStream();
+            Log.i(CATEGORIA, String.valueOf(conn.getErrorStream()));
+            Log.i(CATEGORIA, "read string");
             String result = readString(in);
+            Log.i(CATEGORIA, result);
+
 
 
             conn.disconnect();
@@ -115,8 +132,11 @@ public class Http{
 
             // Output - saída
             conn.setDoOutput(true);
+            conn.setRequestProperty("Accept-Language","application/json");
+            conn.setRequestProperty("User-Agent","Mozilla/5.0  (Windows NT 5.1) AppleWebKit/535.11 (KHTML, like Gecko)  Chrome/17.0.963.56 Safari/535.11");
             conn.setRequestProperty("Content-type", "application/json");
             conn.setRequestProperty("Content", String.valueOf(telefones));
+
 //            conn.setRequestProperty("charset", "utf-8");
             conn.connect();
             OutputStream out = conn.getOutputStream();

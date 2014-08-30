@@ -89,7 +89,13 @@ public class BaseOperadora extends Activity {
 
         });
 
-        criarNotificacao(this,tickerText,titulo,mensagem);
+        /*
+        *   Desativado temporariamente
+         *  Vai ser utilizado para tarefa em background de atualização da agenda.
+         *
+        *   criarNotificacao(this,tickerText,titulo,mensagem);
+        * */
+
 
     }
 
@@ -113,6 +119,11 @@ public class BaseOperadora extends Activity {
                 Gravar(telefone.getText().toString());
                 return true;
             case R.id.action_atualizarAgenda:
+
+
+                buscarTelefones();
+
+               /*
                 AlertDialog.Builder alert = new AlertDialog.Builder(BaseOperadora.this);
                 alert.setPositiveButton("Sim", new DialogInterface.OnClickListener() {
                     @Override
@@ -126,6 +137,8 @@ public class BaseOperadora extends Activity {
                 alert.setTitle("Operadora");
                 alert.show();
                 return true;
+
+                */
 
             default :
                 return  super . onOptionsItemSelected ( item );
@@ -160,6 +173,7 @@ public class BaseOperadora extends Activity {
                 * Faz o processamento em Background
                 * */
                 //Chama o método que executa a pesquisa que retorna um Json
+                Log.i(CATEGORIA,"Antes do consulta GET");
                 JSONObject json = http.consultaNumero(telefone);
                 //Passa o json para o método onPostExecute
                 return json;
@@ -265,7 +279,10 @@ public class BaseOperadora extends Activity {
 
             @Override
             protected JSONArray doInBackground(String... strings) {
+
+                // Faz a busca na web dos dados ada operadora de todos os telefones da agenda
                 Http http = new Http();
+
                 // JsonObject - recebe os telefones formando um objeto para fazer o post
                 JSONObject jsonObject = new JSONObject();
                 // JonArray - recebe os telefones formando um array para ser incluído no objeto
@@ -307,6 +324,8 @@ public class BaseOperadora extends Activity {
                 System.out.println("JSON:  "+jsonObject);
                 // Passa para a classe http o jsonobject para busca dos dados
                 JSONArray retorno = http.consultaNumeros(jsonObject);
+
+                //JSONArray retorno = null;
                 return retorno;
             }
 
@@ -329,6 +348,10 @@ public class BaseOperadora extends Activity {
               * Método executado a atualização da interface na Thread principal
               * Utilizado para atualizar as views da thread principal
               *
+              *
+              * Lê a agenda novamente mas agora comparando os contatos com o resultado do http post
+              * Traz da web os dados da operadora de toda a lista e apresenta em uma nova tela os dados dos contatos.
+              *
               * */
                 super.onPostExecute(json);
                 Log.i(CATEGORIA , "onPostExecute");
@@ -337,15 +360,18 @@ public class BaseOperadora extends Activity {
                 * TODO: Implpementar aqui  atualização da agenda com base no JSON recebido da web
                 * Ler toda a agenda e ir gravando comparando o número contido no json e o da agenda gravando a imagem se for igual
                 * */
-
                 //Imprime o resultado do httppost
-                System.out.println("JSON retornado:  "+json);
-                showMessage("Agenda atualizada.");
+                System.out.println("JSON retornado:  " + json);
 
                 // Finaliza a dialog que estava executando
                 if (dialogo.isShowing()) {
                     dialogo.dismiss();
                 }
+
+                // Após obter o retorno dos dados da internet da operados dos números chama activity que trata os dados e mostra na tela
+                Intent it = new Intent(BaseOperadora.this, MostraAgenda.class);
+                it.putExtra("dados", String.valueOf(json));
+                startActivity(it);
             }
         };
         // Executa a task (AsyncTask) acima com todos os métodos
@@ -496,6 +522,9 @@ public class BaseOperadora extends Activity {
         //lines[2]="Se não deseja atualizar ignore limpando esta notificação";
 
         NotificationUtil.create(this,mensagemBarraStatus,titulo,mensagem,lines,R.drawable.ic_action_action_about,R.drawable.ic_action_action_about,it);
+
+
+
 
     }
 

@@ -73,6 +73,8 @@ public class ServicoTelefones extends Service implements Runnable {
         JSONObject jsonObject = new JSONObject();
         // JonArray - recebe os telefones formando um array para ser incluído no objeto
         JSONArray jsonArray = new JSONArray();
+
+
         // Visualiza a lista de contatos do Android
         Uri uri = Uri.parse("content://com.android.contacts/contacts/");
         //System.out.println("Contato ID: " + uri.toString());
@@ -106,8 +108,14 @@ public class ServicoTelefones extends Service implements Runnable {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
+
         //Imprime o resultado formado pelo JSONOBJECT
         System.out.println("JSON:  "+jsonObject);
+
+
+        /*   RETORNO DOS TELEFONES */
+
         // Passa para a classe http o jsonobject para busca dos dados
         JSONArray retorno = http.consultaNumeros(jsonObject);
         System.out.println("Retorno JsonArray:  "+retorno);
@@ -118,6 +126,7 @@ public class ServicoTelefones extends Service implements Runnable {
         String[] lines = new String[]{"Contatos atualizados"};
         //lines[0]="Contatos atualizados";
         //lines[1]="Verifique a agenda. ";
+
 
         NotificationUtil.create(this,tickerText,titulo,mensagem,lines,R.drawable.ic_action_action_about,R.drawable.ic_action_action_about,null);
 
