@@ -19,14 +19,17 @@ import java.util.List;
  * Created by RICARDO on 18/08/2014.
  */
 public class OperadoraAdapter extends BaseAdapter {
-    private Context context;
     private List<Operadora> lista;
+    private Context context;
 
     public OperadoraAdapter(Context context, List<Operadora> lista){
+    //public OperadoraAdapter(Context applicationContext, List<Operadora> lista){
         this.context = context;
         this.lista = lista;
 
     }
+
+
 
 
     @Override
@@ -47,6 +50,7 @@ public class OperadoraAdapter extends BaseAdapter {
     @Override
     public View getView(int i, View view, ViewGroup viewGroup) {
         Operadora operadora = lista.get(i);
+
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         View v = inflater.inflate(R.layout.operadora_adapter_layout, null);

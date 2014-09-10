@@ -10,6 +10,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HTTP;
+import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -29,14 +30,33 @@ import java.net.URL;
 public class Http{
     private final String CATEGORIA="HTTP";// Para uso de log para ver onde está imprimindo as mensagens
     final String url = "http://qualoperadora.herokuapp.com/consulta/";
-
+    //final String url = "http://private-61fc-rodrigoknascimento.apiary-mock.com/consulta/";
 
     //Método que faz o GET na utl conforme o número
     public JSONObject consultaNumero(String numero){
 
         try {
 
+/*
+            HttpClient httpClient = new DefaultHttpClient();
 
+            HttpGet httpGet = new HttpGet(url+numero);
+
+            HttpResponse httpResponse = httpClient.execute(httpGet);
+            httpResponse.setHeader("Accept-Language","application/json");
+            httpResponse.setHeader("User-Agent","Mozilla/5.0  (Windows NT 5.1) AppleWebKit/535.11 (KHTML, like Gecko)  Chrome/17.0.963.56 Safari/535.11");
+            httpResponse.setHeader("Content-type", "application/json");
+
+
+            HttpEntity entity = httpResponse.getEntity();
+
+            InputStream in = entity.getContent();
+
+            //String result = readString(in);
+            String result = EntityUtils.toString(entity);
+            JSONObject json = new JSONObject(result);
+            return json;
+*/
             //Cria a URL
             URL u = new URL(url+numero);
             Log.i(CATEGORIA,url+numero);
@@ -66,6 +86,8 @@ public class Http{
             conn.disconnect();
             JSONObject json = new JSONObject(result);
             return json;
+
+
 
         }catch (MalformedURLException e){
             Log.e(CATEGORIA, e.getMessage(),e);

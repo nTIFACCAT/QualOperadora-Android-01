@@ -120,8 +120,10 @@ public class BaseOperadora extends Activity {
                 return true;
             case R.id.action_atualizarAgenda:
 
-
-                buscarTelefones();
+                Intent it = new Intent(BaseOperadora.this, MostraAgenda.class);
+//                it.putExtra("dados", String.valueOf(json));
+                startActivity(it);
+                //buscarTelefones();
 
                /*
                 AlertDialog.Builder alert = new AlertDialog.Builder(BaseOperadora.this);
@@ -363,15 +365,20 @@ public class BaseOperadora extends Activity {
                 //Imprime o resultado do httppost
                 System.out.println("JSON retornado:  " + json);
 
-                // Finaliza a dialog que estava executando
-                if (dialogo.isShowing()) {
-                    dialogo.dismiss();
-                }
 
                 // Após obter o retorno dos dados da internet da operados dos números chama activity que trata os dados e mostra na tela
                 Intent it = new Intent(BaseOperadora.this, MostraAgenda.class);
                 it.putExtra("dados", String.valueOf(json));
                 startActivity(it);
+
+                // Finaliza a dialog que estava executando
+                if (dialogo.isShowing()) {
+                    dialogo.dismiss();
+                }
+
+
+
+
             }
         };
         // Executa a task (AsyncTask) acima com todos os métodos
