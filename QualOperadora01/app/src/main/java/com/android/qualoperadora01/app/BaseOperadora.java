@@ -89,12 +89,41 @@ public class BaseOperadora extends Activity {
 
         });
 
+
+
+        // Esconde os campos com os dados de contato para caso for fazer uma nova pesquisa iniba os campos antes te mostrar os dados
+        // atualizados
+       EditText txtFone = (EditText)findViewById(R.id.txtFone);
+
+        txtFone.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                TextView txtContato = (TextView) findViewById(R.id.txtContato);
+                TextView txtEstado = (TextView) findViewById(R.id.txtEstado);
+                TextView txtPortabilidade = (TextView) findViewById(R.id.txtPortabilidade);
+                ImageView imageOperadora = (ImageView) findViewById(R.id.imgOperadora);
+
+                txtContato.setVisibility(View.INVISIBLE);
+                txtEstado.setVisibility(View.INVISIBLE);
+                txtPortabilidade.setVisibility(View.INVISIBLE);
+                imageOperadora.setVisibility(View.INVISIBLE);
+
+
+
+
+            }
+        });
+
+
+
         /*
         *   Desativado temporariamente
          *  Vai ser utilizado para tarefa em background de atualização da agenda.
          *
         *   criarNotificacao(this,tickerText,titulo,mensagem);
         * */
+
+
 
 
     }
@@ -267,9 +296,19 @@ public class BaseOperadora extends Activity {
 
 
 
+
+
+
+
     /*
     * Lê a agenda do telefone e passa um Array de números para a classe Http que faz a busca na Web pelos dados da operadora de cada
     * número de cada contato
+    *
+    *
+    *
+    *
+    *
+    *   INATIVO POIS ESTA SENDO UTILIZADO EM UMA ROTINA SEPARADA ATRAVES DE OUTRA VIEW
     *
     * */
     public void buscarTelefones() {
@@ -408,6 +447,20 @@ public class BaseOperadora extends Activity {
 
     // Método que chama a agenda do telefone
     protected void Agenda (){
+
+
+        // Esconde os campos com os dados de contato para caso for fazer uma nova pesquisa iniba os campos antes te mostrar os dados
+        // atualizados
+        TextView txtContato = (TextView) findViewById(R.id.txtContato);
+        TextView txtEstado = (TextView) findViewById(R.id.txtEstado);
+        TextView txtPortabilidade = (TextView) findViewById(R.id.txtPortabilidade);
+        ImageView imageOperadora = (ImageView) findViewById(R.id.imgOperadora);
+
+        txtContato.setVisibility(View.INVISIBLE);
+        txtEstado.setVisibility(View.INVISIBLE);
+        txtPortabilidade.setVisibility(View.INVISIBLE);
+        imageOperadora.setVisibility(View.INVISIBLE);
+
         // Visualiza a lista de contatos
 
         Uri uri = Uri.parse("content://com.android.contacts/contacts/");
@@ -513,7 +566,15 @@ public class BaseOperadora extends Activity {
         }
     }
 
-    // Exibe a notificação
+
+
+    /*
+      *
+      *  Exibe a notificação. Não está sendo utilizado na app pois utilizamos um método para exibir a agenda na tela e não para
+      *  atualização da agenda do android
+    */
+
+
     protected void criarNotificacao(Context context, CharSequence mensagemBarraStatus, CharSequence titulo, CharSequence mensagem){
         // Cria uma notificação que chama o serviço de atualização da agenda do telefone
         final Intent it = new Intent("SERVICE_1");
